@@ -1,5 +1,6 @@
 import sys
 import argparse
+import Translator
 
 argumentParser = argparse.ArgumentParser()
 argumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
@@ -19,8 +20,8 @@ else:
 arguments = argumentParser.parse_args(textToParse)
 
 if arguments.scanish:
-    print(F"Translating '{arguments.scanish}' to Swedish")
+    print(Translator.toSwedish(arguments.scanish))
 elif arguments.swedish:
-    print(F"Translating '{arguments.swedish}' to Scanish")
+    print(Translator.toScanish(arguments.swedish))
 else:
     argumentParser.print_usage()
