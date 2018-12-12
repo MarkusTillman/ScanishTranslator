@@ -1,33 +1,9 @@
 from bidict import bidict
+import json
 
-# TODO: resource files; http://users.student.lth.se/e96pn/skanskaord.html
-twoWayDictionary = bidict({
-    'skaune': 'skåne',
-    'ljuse': 'ljus',
-    'ljusena': 'ljusen',
-    'unsdag': 'onsdag',
-    'uhlsson': 'ohlsson',
-    'tacu': 'taco',
-    'ust': 'ost',
-    'daj': 'dig',
-    'e': 'är',
-    'me': 'med',
-    'dörra': 'dörr',
-    'vann': 'vatten',
-    'laugom': 'lagom',
-    'arbejda': 'arbeta',
-    'bloa': 'blöda',
-    'chokela': 'choklad',
-})
-swedishDictionary = {
-    'hej': 'haj',
-    'mig': 'maj',
-    'dig': 'daj',
-    'och': 'å',
-    'jag': 'ja',
-}
-scanishDictionary = {
-}
+twoWayDictionary = bidict(json.load(open("twoWay.dict", encoding="utf-8")))
+swedishDictionary = json.load(open("swedishToScanish.dict", encoding="utf-8"))
+scanishDictionary = json.load(open("scanishToSwedish.dict", encoding="utf-8"))
 
 def toSwedish(scanishWord):
     return getTranslationUsingDictionaries(twoWayDictionary, scanishDictionary, scanishWord)
@@ -35,12 +11,12 @@ def toSwedish(scanishWord):
 def toScanish(swedishWord):
     return getTranslationUsingDictionaries(twoWayDictionary.inv, swedishDictionary, swedishWord)
 
-def getTranslationUsingDictionaries(mainDictionary, fallbackDictionary, word):
+def getTranslationUsingDictionaries(mainDictionary, fallbackDictionary, wordToTranslate):
     try:
-        return mainDictionary[word.lower()]
+        return mainDictionary[wordToTranslate.lower()]
     except KeyError:
         try:
-            return fallbackDictionary[word.lower()]
+            return fallbackDictionary[wordToTranslate.lower()]
         except KeyError:
-            return word
+            return wordToTranslate
 
