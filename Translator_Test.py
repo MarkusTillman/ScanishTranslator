@@ -21,6 +21,9 @@ class TestTranslateScanishToSwedish:
     def testThatWordMissingTranslationIsUnchanged(self):
         assert Translator.toSwedish("WordWithoutTranslation") == "WordWithoutTranslation"
 
+    def testThatSeveralWordsCanBeTranslatedAtOnce(self):
+        assert Translator.toSwedish("Jävla ålahue jau ei så ked på daj") == "Jävla dumhuvud jag är så trött på dig"
+
 
 class TestTranslateSwedishToScanish:
     
@@ -45,3 +48,6 @@ class TestTranslateSwedishToScanish:
 
     def testThatWordWithOnlyOneWayTranslationIsTranslated(self):
         assert Translator.toScanish("och") == "å"
+
+    def testThatSeveralWordsCanBeTranslatedAtOnce(self):
+        assert Translator.toScanish("Jävla dumhuvud jag är så trött på dig") == "Jävla ålahue jau ei så ked på daj"

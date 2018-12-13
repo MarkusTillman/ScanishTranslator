@@ -5,13 +5,27 @@ twoWayDictionary = bidict(json.load(open("twoWay.dict", encoding="utf-8")))
 swedishDictionary = json.load(open("swedishToScanish.dict", encoding="utf-8"))
 scanishDictionary = json.load(open("scanishToSwedish.dict", encoding="utf-8"))
 
-def toSwedish(scanishWord):
-    return getTranslationUsingDictionaries(twoWayDictionary, scanishDictionary, scanishWord)
+def toSwedish(scanishText):
+    if scanishText.isspace():
+        return scanishText
 
-def toScanish(swedishWord):
-    return getTranslationUsingDictionaries(twoWayDictionary.inv, swedishDictionary, swedishWord)
+    return translateText(twoWayDictionary, scanishDictionary, scanishText)
 
-def getTranslationUsingDictionaries(mainDictionary, fallbackDictionary, wordToTranslate):
+def toScanish(swedishText):
+    if swedishText.isspace():
+        return swedishText
+
+    return translateText(twoWayDictionary.inv, swedishDictionary, swedishText)
+
+def translateText(mainDictionary, fallbackDictionary, textToTranslate):
+    strippedText = textToTranslate.strip()
+    translatedText = ""
+    for word in strippedText.split(" "):
+        potentiallyTranslatedWord = tryToTranslateWord(mainDictionary, fallbackDictionary, word)
+        translatedText += F"{potentiallyTranslatedWord} "
+    return translatedText.rstrip()
+
+def tryToTranslateWord(mainDictionary, fallbackDictionary, wordToTranslate):
     try:
         return mainDictionary[wordToTranslate.lower()]
     except KeyError:
@@ -19,4 +33,3 @@ def getTranslationUsingDictionaries(mainDictionary, fallbackDictionary, wordToTr
             return fallbackDictionary[wordToTranslate.lower()]
         except KeyError:
             return wordToTranslate
-
