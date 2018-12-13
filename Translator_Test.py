@@ -14,6 +14,10 @@ class TestTranslateScanishToSwedish:
     def testThatWordInLowerCaseIsTranslated(self):
         assert Translator.toSwedish("skaune").lower() == "skåne"
 
+    def testTwoDifferentWordsCanBeTranslatedToTheSameWord(self):
+        assert Translator.toSwedish("fubbick") == "dumhuvud"
+        assert Translator.toSwedish("ålahue") == "dumhuvud"
+
     def testThatWordMissingTranslationIsUnchanged(self):
         assert Translator.toSwedish("WordWithoutTranslation") == "WordWithoutTranslation"
 
@@ -32,10 +36,12 @@ class TestTranslateSwedishToScanish:
     def testThatWordInLowerCaseIsTranslated(self):
         assert Translator.toScanish("skåne").lower() == "skaune"
 
+    def testTwoDifferentWordsCanBeTranslatedToTheSameWord(self):
+        assert Translator.toScanish("släpa") == "asa"
+        assert Translator.toScanish("dra") == "asa"
+
     def testThatWordMissingTranslationIsUnchanged(self):
         assert Translator.toScanish("WordWithoutTranslation") == "WordWithoutTranslation"
 
-        
     def testThatWordWithOnlyOneWayTranslationIsTranslated(self):
         assert Translator.toScanish("och") == "å"
-
