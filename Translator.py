@@ -1,4 +1,5 @@
 from bidict import bidict
+import re
 import json
 
 twoWayDictionary = bidict(json.load(open("twoWay.dict", encoding="utf-8")))
@@ -20,10 +21,13 @@ def toScanish(swedishText):
 def translateText(mainDictionary, fallbackDictionary, textToTranslate):
     strippedText = textToTranslate.strip()
     translatedText = ""
-    for word in strippedText.split(" "):
+    for word in getListOfWordsAndSeparators(strippedText):
         potentiallyTranslatedWord = tryToTranslateWord(mainDictionary, fallbackDictionary, word)
-        translatedText += F"{potentiallyTranslatedWord} "
-    return translatedText.rstrip()
+        translatedText += potentiallyTranslatedWord
+    return translatedText
+
+def getListOfWordsAndSeparators(text):
+    return re.split(r"(\W)", text)
 
 def tryToTranslateWord(mainDictionary, fallbackDictionary, wordToTranslate):
     try:

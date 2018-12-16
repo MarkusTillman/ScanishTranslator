@@ -24,6 +24,9 @@ class TestTranslateScanishToSwedish:
     def testThatSeveralWordsCanBeTranslatedAtOnce(self):
         assert Translator.toSwedish("Jävla ålahue jau ei så ked på daj") == "Jävla dumhuvud jag är så trött på dig"
 
+    def testThatSeveralWordsDividedBySpecialCharactersCanBeTranslated(self):
+        scanish = "Jävla ålahue; jau. ei. så, ked/putt på daj, å dina päron!"
+        assert Translator.toSwedish(scanish) == "Jävla dumhuvud; jag. är. så, trött/irriterad på dig, å dina föräldrar!"
 
 class TestTranslateSwedishToScanish:
     
@@ -51,3 +54,7 @@ class TestTranslateSwedishToScanish:
 
     def testThatSeveralWordsCanBeTranslatedAtOnce(self):
         assert Translator.toScanish("Jävla dumhuvud jag är så trött på dig") == "Jävla ålahue jau ei så ked på daj"
+
+    def testThatSeveralWordsDividedBySpecialCharactersCanBeTranslated(self):
+        swedish = "Jävla dumhuvud; jag. är. så, trött/irriterad på dig, och dina föräldrar!"
+        assert Translator.toScanish(swedish) == "Jävla ålahue; jau. ei. så, ked/putt på daj, å dina päron!"
