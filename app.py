@@ -1,27 +1,42 @@
-import sys
 import argparse
 import Translator
+from flask import Flask, jsonify, request
+app = Flask(__name__)
 
 argumentParser = argparse.ArgumentParser()
 argumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
 argumentParser.add_argument("--swedish", help="Swedish text to be translated to Scanish")
 
-def argumentsAreFromCommandLine():
-    return len(sys.argv) > 1
+def parseText(text):
+    command = text.split(" ")[0]
+    textToTranslate = text[len(command) + 1:]
+    return argumentParser.parse_args([command, textToTranslate])
 
-def getTextFromRequest():
-    return "--scanish scanish".split() # TODO: temporary.
+def translateText(arguments):
+    if arguments.scanish:
+        return Translator.toSwedish(arguments.scanish)
+    elif arguments.swedish:
+        return Translator.toScanish(arguments.swedish)
+    else:
+        return "No text to translate"
 
-if argumentsAreFromCommandLine():
-    textToParse = None
-else:
-    textToParse = getTextFromRequest()
+def errorResponse(usage):
+    return jsonify(
+        response_type = "ephemeral",
+        text = usage
+    )
 
-arguments = argumentParser.parse_args(textToParse)
+def response(translatedText):
+    return jsonify(
+        response_type = "in_channel",
+        text = translatedText
+    )
 
-if arguments.scanish:
-    print(Translator.toSwedish(arguments.scanish))
-elif arguments.swedish:
-    print(Translator.toScanish(arguments.swedish))
-else:
-    argumentParser.print_usage()
+@app.route("/scanish", methods=["POST"])
+def home():
+    try:
+        arguments = parseText(request.form["text"])
+        translatedText = translateText(arguments)
+        return response(translatedText)
+    except:
+        return errorResponse(argumentParser.format_usage())
