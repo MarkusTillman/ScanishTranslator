@@ -1,5 +1,6 @@
 import argparse
 import Translator
+import requests
 from flask import Flask, jsonify, request
 app = Flask(__name__)
 
@@ -37,6 +38,7 @@ def home():
     try:
         arguments = parseText(request.form["text"])
         translatedText = translateText(arguments)
+        requests.post("https://hooks.slack.com/services/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", json={"text":"testing webhook"})
         return response(translatedText)
     except:
         return errorResponse(argumentParser.format_usage())
