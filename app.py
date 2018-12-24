@@ -33,6 +33,10 @@ def response(translatedText):
         text = translatedText
     )
 
+@app.route("/", methods=["GET"])
+def get():
+    return "I'm alive"
+ 
 @app.route("/scanish", methods=["POST"])
 def handleCommand():
     try:
