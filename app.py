@@ -34,11 +34,10 @@ def response(translatedText):
     )
 
 @app.route("/scanish", methods=["POST"])
-def home():
+def handleCommand():
     try:
         arguments = parseText(request.form["text"])
         translatedText = translateText(arguments)
-        requests.post("https://hooks.slack.com/services/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", json={"text":"testing webhook"})
         return response(translatedText)
     except:
         return errorResponse(argumentParser.format_usage())
