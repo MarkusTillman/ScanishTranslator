@@ -4,7 +4,6 @@ import requests
 import logging
 from ChatData import ChatData
 import sys
-import json
 
 import hmac
 import hashlib
@@ -34,14 +33,9 @@ def translateText(arguments):
 def verifyReceivedRequest(request):
     receivedSignature = request.headers["X-Slack-Signature"]
     timestamp = request.headers["X-Slack-Request-Timestamp"] 
-    contentType = request.headers["Content-Type"] 
-    
-    if "json" in contentType:
-        body = request.data.decode("utf-8")
-    elif "url" in contentType:
-        body = request.data.decode("utf-8") # todo: support for url-encoding
+    rawBody = request.get_data()
 
-    baseString = ':'.join(["v0", timestamp, body])
+    baseString = ':'.join(["v0", timestamp, rawBody.decode("utf-8")])
     binarySigningSecret = open("signing.secret", "rb").read()
     digest = hmac.new(key = binarySigningSecret, msg = baseString.encode("utf-8"), digestmod=hashlib.sha256).hexdigest()
     computedSignature = "v0=" + digest
@@ -51,7 +45,7 @@ def verifyReceivedRequest(request):
         abort(400)
 
 def logReceivedRequest(request):
-    logging.info("Received: " + str(request.headers) + str(request.data))
+    logging.info("Received: " + str(request.headers) + str(request.get_data()))
 
 @app.route("/", methods=["GET"])
 def get():
