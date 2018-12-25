@@ -1,11 +1,13 @@
 import argparse
 import Translator
 import requests
+import logging
 from ChatData import ChatData
 import sys
 from flask import Flask, jsonify, request
 app = Flask(__name__)
 
+logging.basicConfig(filename="log.log", level=logging.DEBUG)
 argumentParser = argparse.ArgumentParser()
 argumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
 argumentParser.add_argument("--swedish", help="Swedish text to be translated to Scanish")
@@ -24,6 +26,9 @@ def translateText(arguments):
     else:
         return "No text to translate"
 
+def logReceivedRequest(request):
+    logging.info("Received: " + str(request.headers) + str(request.data))
+
 @app.route("/", methods=["GET"])
 def get():
     return "I'm alive"
@@ -31,6 +36,7 @@ def get():
 
 @app.route("/scanish", methods=["POST"])
 def handleUrlEncodedCommands():
+    logReceivedRequest(request)
     try:
         arguments = parseText(request.form["text"])
         translatedText = translateText(arguments)
@@ -41,11 +47,11 @@ def handleUrlEncodedCommands():
 
 @app.route("/", methods=["POST"])
 def handleJsonEvents():
+    logReceivedRequest(request)
     try:
         jsonData = request.get_json()
-        print("Received: \n" + str(jsonData))
         if not jsonData:
-            print("Expected JSON")
+            logging.warning("Expected JSON data")
             return ""
 
         if "challenge" in jsonData:
@@ -54,7 +60,7 @@ def handleJsonEvents():
             translateAndSend(jsonData) # todo: make asynchronously
         return ""
     except:
-        print("Unexpected error:", sys.exc_info())
+        logging.error("Unexpected error: " + sys.exc_info())
         return ""
 
 def isCommand(text):
@@ -94,6 +100,6 @@ def translateAndSend(jsonData):
         ]
     }
     headers = {"Authorization": "Bearer " + accessToken}
-    print("Posting: \n" + str(headers) + "\n" + str(json))
+    logging.info("Posting: \n" + str(headers) + "\n" + str(json))
     response = requests.post("https://slack.com/api/chat.update", headers = headers, json = json)
-    print("Post response: \n" + str(response.content))
+    logging.info("Post response: \n" + str(response.content))
