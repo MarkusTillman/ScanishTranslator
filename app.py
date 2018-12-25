@@ -7,7 +7,7 @@ import sys
 from flask import Flask, jsonify, request
 app = Flask(__name__)
 
-logging.basicConfig(filename="log.log", level=logging.DEBUG)
+logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
 argumentParser = argparse.ArgumentParser()
 argumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
 argumentParser.add_argument("--swedish", help="Swedish text to be translated to Scanish")
