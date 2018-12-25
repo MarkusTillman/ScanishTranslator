@@ -24,57 +24,41 @@ def translateText(arguments):
     else:
         return "No text to translate"
 
-def errorResponse(usage):
-    return jsonify(
-        response_type = "ephemeral",
-        text = usage
-    )
-
-def response(translatedText):
-    return jsonify(
-        response_type = "in_channel",
-        text = translatedText
-    )
-
 @app.route("/", methods=["GET"])
 def get():
     return "I'm alive"
- 
+
+
 @app.route("/scanish", methods=["POST"])
-def handleCommand():
+def handleUrlEncodedCommands():
     try:
         arguments = parseText(request.form["text"])
         translatedText = translateText(arguments)
-        return response(translatedText)
+        return jsonify({ "response_type": "in_channel", "text": translatedText})
     except:
-        return errorResponse(argumentParser.format_usage())
+        return jsonify({ "response_type": "ephemeral", "text": argumentParser.format_usage()})
 
 
 @app.route("/", methods=["POST"])
-def handleEvents():
+def handleJsonEvents():
     try:
         jsonData = request.get_json()
         print("Received: \n" + str(jsonData))
         if not jsonData:
             print("Expected JSON")
-            return okResponse()
+            return ""
 
         if "challenge" in jsonData:
             return jsonify({ "challenge" : jsonData["challenge"] })
         else:
             translateAndSend(jsonData) # todo: make asynchronously
-        return okResponse()
+        return ""
     except:
         print("Unexpected error:", sys.exc_info())
-        return okResponse()
-
-def okResponse():
-    print("Returning ok response")
-    return ""
+        return ""
 
 def isCommand(text):
     return text[0] == '/'
-
 
 def translateAndSend(jsonData):
     if "event" not in jsonData:
