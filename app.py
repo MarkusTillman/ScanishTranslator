@@ -11,15 +11,23 @@ import _thread
 app = Flask(__name__)
 
 logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
-argumentParser = argparse.ArgumentParser() # todo: split command & event arguments
-argumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
-argumentParser.add_argument("--swedish", help="Swedish text to be translated to Scanish")
-argumentParser.add_argument("--register", help="Register how your text shall be translated")
 
-def parseArguments(text):
-    command = text.split(" ")[0]
-    textToTranslate = text[len(command) + 1:]
-    return argumentParser.parse_args([command, textToTranslate])
+commandArgumentParser = argparse.ArgumentParser()
+commandArgumentParser.add_argument("--register", 
+    help=   "Register how your text shall be translated.\n" +
+            "\"scanish\"=translate from Scanish to Swedish.\n" +
+            "\"swedish\"=translate from Swedish to Scanish.\n", 
+    nargs=2,
+    metavar=("scanish", "swedish"))
+
+eventArgumentParser = argparse.ArgumentParser()
+eventArgumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
+eventArgumentParser.add_argument("--swedish", help="Swedish text to be translated to Scanish")
+
+def parseArguments(text, argumentParser):
+    argumentName = text.split(" ")[0]
+    argumentValue = text[len(argumentName) + 1:]
+    return argumentParser.parse_args([argumentName, argumentValue])
 
 def translateText(arguments):
     if arguments.scanish:
@@ -42,17 +50,17 @@ def handleUrlEncodedCommands():
     logReceivedRequest(request)
     RequestHandler.verifyRequest(request)
     try:
-        arguments = parseArguments(request.form["text"])
+        arguments = parseArguments(request.form["text"], commandArgumentParser)
         if arguments.register:
             UserStorage.registerUser(request.form["user_id"], arguments.register)
             return jsonify({
                 "response_type": "ephemeral",
                 "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]
             })
-        return jsonify({ "response_type": "ephemeral", "text": argumentParser.format_usage()})
+        return jsonify({ "response_type": "ephemeral", "text": commandArgumentParser.format_help()})
     except:
         logging.error("Unexpected error: " + str(sys.exc_info()))
-        return jsonify({ "response_type": "ephemeral", "text": argumentParser.format_usage()})
+        return jsonify({ "response_type": "ephemeral", "text": commandArgumentParser.format_help()})
 
 
 @app.route("/", methods=["POST"])
@@ -109,7 +117,7 @@ def doTheTranslation(jsonData):
 def translate(jsonData):
     text = jsonData["event"]["text"]
     userId = jsonData["event"]["user"]
-    arguments = parseArguments("--" + UserStorage.getTranslationModeFor(userId) + " " + text)
+    arguments = parseArguments("--" + UserStorage.getTranslationModeFor(userId) + " " + text, eventArgumentParser)
     return translateText(arguments)
 
 def createChatData(jsonData, translatedText):
