@@ -59,9 +59,11 @@ def handleJsonEvents():
         if "challenge" in jsonData:
             return jsonify({ "challenge" : jsonData["challenge"] })
         else:
-            # todo: make asynchronously
-            chatData = translate(jsonData)
-            RequestSender.send(chatData)
+            if shallTranslate(jsonData):
+                # todo: make asynchronously
+                translatedText = translate(jsonData)
+                chatData = createChatData(jsonData, translatedText)
+                RequestSender.send(chatData)
         return ""
     except:
         logging.error("Unexpected error: " + sys.exc_info())
@@ -70,26 +72,30 @@ def handleJsonEvents():
 def isCommand(text):
     return text[0] == '/'
 
-def translate(jsonData):
-    # todo: verify jsonData (body)
+def shallTranslate(jsonData):
     if "event" not in jsonData:
-        return
+        return False
     event = jsonData["event"]
     if "type" not in event: 
-        return
+        return False
     if event["type"] != "message":
-        return 
+        return False
     if "subtype" in event:
-        return
-    text = event["text"]
-    if (isCommand(text)):
-        return
+        return False
+    if (isCommand(event["text"])):
+        return False
+    return True
 
+def translate(jsonData):
+    text = jsonData["event"]["text"]
     arguments = parseText("--scanish " + text) # todo: make configuration using new command.
-    translatedText = translateText(arguments)
+    return translateText(arguments)
+
+def createChatData(jsonData, translatedText):
+    event = jsonData["event"]
     return ChatData(
         token = jsonData["token"], 
         channel = event["channel"], 
-        originalText = text, 
+        originalText = event["text"], 
         timestamp = event["ts"], 
         translatedText = translatedText)
