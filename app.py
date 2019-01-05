@@ -2,6 +2,7 @@ import argparse
 import Translator
 import RequestHandler
 import RequestSender
+import UserStorage
 import logging
 from ChatData import ChatData
 import sys
@@ -10,11 +11,12 @@ import _thread
 app = Flask(__name__)
 
 logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
-argumentParser = argparse.ArgumentParser()
+argumentParser = argparse.ArgumentParser() # todo: split command & event arguments
 argumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
 argumentParser.add_argument("--swedish", help="Swedish text to be translated to Scanish")
+argumentParser.add_argument("--register", help="Register how your text shall be translated")
 
-def parseText(text):
+def parseArguments(text):
     command = text.split(" ")[0]
     textToTranslate = text[len(command) + 1:]
     return argumentParser.parse_args([command, textToTranslate])
@@ -40,10 +42,13 @@ def handleUrlEncodedCommands():
     logReceivedRequest(request)
     RequestHandler.verifyRequest(request)
     try:
-        arguments = parseText(request.form["text"])
-        translatedText = translateText(arguments)
-        return jsonify({ "response_type": "in_channel", "text": translatedText})
+        arguments = parseArguments(request.form["text"])
+        if arguments.register:
+            UserStorage.registerUser(request.form["user_id"], arguments.register)
+            return jsonify({ "response_type": "ephemeral", "text": "The pact is sealed"}) # todo: attach winnie
+        return jsonify({ "response_type": "ephemeral", "text": argumentParser.format_usage()})
     except:
+        logging.error("Unexpected error: " + str(sys.exc_info()))
         return jsonify({ "response_type": "ephemeral", "text": argumentParser.format_usage()})
 
 
@@ -73,13 +78,17 @@ def shallTranslate(jsonData):
     if "event" not in jsonData:
         return False
     event = jsonData["event"]
+    if "user" not in event:
+        return False
     if "type" not in event: 
         return False
     if event["type"] != "message":
         return False
     if "subtype" in event:
         return False
-    if (isCommand(event["text"])):
+    if isCommand(event["text"]):
+        return False
+    if not UserStorage.isRegisteredUser(event["user"]):
         return False
     return True
 
@@ -96,7 +105,8 @@ def doTheTranslation(jsonData):
 
 def translate(jsonData):
     text = jsonData["event"]["text"]
-    arguments = parseText("--scanish " + text) # todo: make configuration using new command.
+    userId = jsonData["event"]["user"]
+    arguments = parseArguments("--" + UserStorage.getTranslationModeFor(userId) + " " + text)
     return translateText(arguments)
 
 def createChatData(jsonData, translatedText):
