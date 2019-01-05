@@ -66,7 +66,7 @@ def handleJsonEvents():
                 RequestSender.send(chatData)
         return ""
     except:
-        logging.error("Unexpected error: " + sys.exc_info())
+        logging.error("Unexpected error: " + str(sys.exc_info()))
         return ""
 
 def isCommand(text):
