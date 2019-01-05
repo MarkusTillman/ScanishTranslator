@@ -48,8 +48,8 @@ def get():
 @app.route("/scanish", methods=["POST"])
 def handleUrlEncodedCommands():
     logReceivedRequest(request)
-    RequestHandler.verifyRequest(request)
     try:
+        RequestHandler.verifyRequest(request)
         arguments = parseArguments(request.form["text"], commandArgumentParser)
         if arguments.register:
             UserStorage.registerUser(request.form["user_id"], arguments.register)
@@ -66,8 +66,8 @@ def handleUrlEncodedCommands():
 @app.route("/", methods=["POST"])
 def handleJsonEvents():
     logReceivedRequest(request)
-    RequestHandler.verifyRequest(request)
     try:
+        RequestHandler.verifyRequest(request)
         jsonData = request.get_json()
         if not jsonData:
             logging.warning("Expected JSON data")
