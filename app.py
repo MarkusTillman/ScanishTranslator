@@ -1,14 +1,11 @@
 import argparse
 import Translator
+import RequestHandler
 import requests
 import logging
 from ChatData import ChatData
 import sys
-
-import hmac
-import hashlib
-
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request
 app = Flask(__name__)
 
 logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
@@ -30,20 +27,6 @@ def translateText(arguments):
     else:
         return "No text to translate"
 
-def verifyReceivedRequest(request):
-    receivedSignature = request.headers["X-Slack-Signature"]
-    timestamp = request.headers["X-Slack-Request-Timestamp"] 
-    rawBody = request.get_data()
-
-    baseString = ':'.join(["v0", timestamp, rawBody.decode("utf-8")])
-    binarySigningSecret = open("signing.secret", "rb").read()
-    digest = hmac.new(key = binarySigningSecret, msg = baseString.encode("utf-8"), digestmod=hashlib.sha256).hexdigest()
-    computedSignature = "v0=" + digest
-    
-    if not hmac.compare_digest(computedSignature, receivedSignature):
-        logging.warning("Verification failed. Computed signature: " + computedSignature)
-        abort(400)
-
 def logReceivedRequest(request):
     logging.info("Received: " + str(request.headers) + str(request.get_data()))
 
@@ -55,7 +38,7 @@ def get():
 @app.route("/scanish", methods=["POST"])
 def handleUrlEncodedCommands():
     logReceivedRequest(request)
-    verifyReceivedRequest(request)
+    RequestHandler.verifyRequest(request)
     try:
         arguments = parseText(request.form["text"])
         translatedText = translateText(arguments)
@@ -67,7 +50,7 @@ def handleUrlEncodedCommands():
 @app.route("/", methods=["POST"])
 def handleJsonEvents():
     logReceivedRequest(request)
-    verifyReceivedRequest(request)
+    RequestHandler.verifyRequest(request)
     try:
         jsonData = request.get_json()
         if not jsonData:
