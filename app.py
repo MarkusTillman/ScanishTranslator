@@ -45,7 +45,10 @@ def handleUrlEncodedCommands():
         arguments = parseArguments(request.form["text"])
         if arguments.register:
             UserStorage.registerUser(request.form["user_id"], arguments.register)
-            return jsonify({ "response_type": "ephemeral", "text": "The pact is sealed"}) # todo: attach winnie
+            return jsonify({
+                "response_type": "ephemeral",
+                "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]
+            })
         return jsonify({ "response_type": "ephemeral", "text": argumentParser.format_usage()})
     except:
         logging.error("Unexpected error: " + str(sys.exc_info()))
