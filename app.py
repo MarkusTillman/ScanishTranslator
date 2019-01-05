@@ -6,6 +6,7 @@ import logging
 from ChatData import ChatData
 import sys
 from flask import Flask, jsonify, request
+import _thread
 app = Flask(__name__)
 
 logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
@@ -58,12 +59,8 @@ def handleJsonEvents():
 
         if "challenge" in jsonData:
             return jsonify({ "challenge" : jsonData["challenge"] })
-        else:
-            if shallTranslate(jsonData):
-                # todo: make asynchronously
-                translatedText = translate(jsonData)
-                chatData = createChatData(jsonData, translatedText)
-                RequestSender.send(chatData)
+        elif shallTranslate(jsonData):
+            letNewThreadHandleTheTranslation(jsonData)
         return ""
     except:
         logging.error("Unexpected error: " + str(sys.exc_info()))
@@ -85,6 +82,17 @@ def shallTranslate(jsonData):
     if (isCommand(event["text"])):
         return False
     return True
+
+def letNewThreadHandleTheTranslation(jsonData):
+    _thread.start_new_thread(doTheTranslation, (jsonData, ))
+
+def doTheTranslation(jsonData):
+    try:
+        translatedText = translate(jsonData)
+        chatData = createChatData(jsonData, translatedText)
+        RequestSender.send(chatData)
+    except:
+        logging.error("Unexpected error: " + str(sys.exc_info()))
 
 def translate(jsonData):
     text = jsonData["event"]["text"]
