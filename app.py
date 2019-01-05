@@ -1,7 +1,7 @@
 import argparse
 import Translator
 import RequestHandler
-import requests
+import RequestSender
 import logging
 from ChatData import ChatData
 import sys
@@ -12,7 +12,6 @@ logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
 argumentParser = argparse.ArgumentParser()
 argumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
 argumentParser.add_argument("--swedish", help="Swedish text to be translated to Scanish")
-accessToken = open("access.token", "r").read()
 
 def parseText(text):
     command = text.split(" ")[0]
@@ -60,7 +59,9 @@ def handleJsonEvents():
         if "challenge" in jsonData:
             return jsonify({ "challenge" : jsonData["challenge"] })
         else:
-            translateAndSend(jsonData) # todo: make asynchronously
+            # todo: make asynchronously
+            chatData = translate(jsonData)
+            RequestSender.send(chatData)
         return ""
     except:
         logging.error("Unexpected error: " + sys.exc_info())
@@ -69,7 +70,8 @@ def handleJsonEvents():
 def isCommand(text):
     return text[0] == '/'
 
-def translateAndSend(jsonData):
+def translate(jsonData):
+    # todo: verify jsonData (body)
     if "event" not in jsonData:
         return
     event = jsonData["event"]
@@ -85,24 +87,9 @@ def translateAndSend(jsonData):
 
     arguments = parseText("--scanish " + text) # todo: make configuration using new command.
     translatedText = translateText(arguments)
-    dataToUpdateChatWith = ChatData(
+    return ChatData(
         token = jsonData["token"], 
         channel = event["channel"], 
         originalText = text, 
         timestamp = event["ts"], 
         translatedText = translatedText)
-    json = {
-        "token": dataToUpdateChatWith.token,
-        "channel": dataToUpdateChatWith.channel,
-        "text": dataToUpdateChatWith.originalText,
-        "ts": dataToUpdateChatWith.timestamp,
-        "attachments": [
-            {
-                "text": dataToUpdateChatWith.translatedText
-            }
-        ]
-    }
-    headers = {"Authorization": "Bearer " + accessToken}
-    logging.info("Posting: \n" + str(headers) + "\n" + str(json))
-    response = requests.post("https://slack.com/api/chat.update", headers = headers, json = json)
-    logging.info("Post response: \n" + str(response.content))
