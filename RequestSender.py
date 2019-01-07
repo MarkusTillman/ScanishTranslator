@@ -15,7 +15,10 @@ def send(chatData):
             }
         ]
     }
-    headers = {"Authorization": "Bearer " + accessToken}
+    headers = {
+        "Content-Type": "application/json;charset=utf-8",
+        "Authorization": "Bearer " + accessToken
+    }
     logging.info("Posting request: \n" + str(headers) + "\n" + str(json))
     response = requests.post("https://slack.com/api/chat.update", headers = headers, json = json)
     logging.info("Post response: \n" + str(response.content))
