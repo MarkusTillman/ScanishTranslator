@@ -15,10 +15,9 @@ logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
 commandArgumentParser = argparse.ArgumentParser()
 commandArgumentParser.add_argument("--register", 
     help=   "Register how your text shall be translated.\n" +
-            "\"scanish\"=translate from Scanish to Swedish.\n" +
-            "\"swedish\"=translate from Swedish to Scanish.\n", 
-    nargs=2,
-    metavar=("scanish", "swedish"))
+            "scanish=translate from Scanish to Swedish.\n" +
+            "swedish=translate from Swedish to Scanish.\n",
+    metavar="languageToTranslateFrom")
 
 eventArgumentParser = argparse.ArgumentParser()
 eventArgumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
