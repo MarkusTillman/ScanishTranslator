@@ -1,25 +1,14 @@
 
-import json
+import shelve
+from Storage import Storage 
 
-fileName = "user.storage"
-try:
-    registeredUsers = json.load(open(fileName, "r"))
-except FileNotFoundError:
-    registeredUsers = {}
-    open(fileName, "w+").write("{}")
-
-def getFileName():
-    return fileName
+userStorage = Storage("user.storage", mode='c', writeback=False)
 
 def isRegisteredUser(userString):
-    return userString in registeredUsers
+    return userStorage.exists(userString)
 
 def registerUser(userString, translationMode):
-    registeredUsers.update({userString: translationMode})
-    file = open(fileName, "w")
-    file.write(json.dumps(registeredUsers))
+    userStorage.add(userString, translationMode)
 
 def getTranslationModeFor(userString):
-    if isRegisteredUser(userString):
-        return registeredUsers[userString]
-    return ""
+    return userStorage.get(userString)
