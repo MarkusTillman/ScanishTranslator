@@ -4,6 +4,7 @@ from flask import jsonify
 import sys
 import argparse
 import RequestHandler
+import UserStorage
 
 commandArgumentParser = argparse.ArgumentParser()
 commandArgumentParser.add_argument("--register", 
