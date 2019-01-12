@@ -3,11 +3,13 @@ import Translator
 import RequestHandler
 import RequestSender
 import UserStorage
+import AuthorizationOperation
 import logging
 from ChatData import ChatData
 import sys
 from flask import Flask, jsonify, request
 import _thread
+
 app = Flask(__name__)
 
 logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
@@ -40,9 +42,14 @@ def logReceivedRequest(request):
     logging.info("Received: " + str(request.headers) + str(request.get_data()))
 
 @app.route("/", methods=["GET"])
-def get():
-    return "I'm alive"
+def handleUserAuthorizationOfApp():
+    logReceivedRequest(request)
+    return AuthorizationOperation.handleRedirect(request)
 
+@app.route("/verificationCode", methods=["GET"])
+def handleAuthorizationCallback():
+    logReceivedRequest(request)
+    return AuthorizationOperation.handleCallback(request)
 
 @app.route("/scanish", methods=["POST"])
 def handleUrlEncodedCommands():
@@ -126,4 +133,5 @@ def createChatData(jsonData, translatedText):
         channel = event["channel"], 
         originalText = event["text"], 
         timestamp = event["ts"], 
+        userId = event["user"],
         translatedText = translatedText)
