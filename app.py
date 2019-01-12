@@ -9,11 +9,11 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def handleUserAuthorizationOfApp():
-    return AuthorizationOperation.handleRedirect(request)
+    return AuthorizationOperation.redirectToSlack(request)
 
 @app.route("/verificationCode", methods=["GET"])
-def handleAuthorizationCallback():
-    return AuthorizationOperation.handleCallback(request)
+def handleUserAuthorizationCallback():
+    return AuthorizationOperation.handleCallbackFromSlack(request)
 
 @app.route("/scanish", methods=["POST"])
 def handleSlackCommand():

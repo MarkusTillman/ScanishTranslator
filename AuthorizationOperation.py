@@ -10,7 +10,7 @@ clientSecret = open("client.secret", "r").read()
 clientId = "492531746400.493469272005" # todo: file
 permissionsToAuthorize = [ "chat:write:user", "im:write" ] # todo: file
 
-def handleRedirect(request):
+def redirectToSlack(request):
     Logger.logIncomingRequest(request.headers, request.get_data())
 
     requestParameters = {
@@ -23,7 +23,7 @@ def handleRedirect(request):
     response = redirect(url, HTTPStatus.FOUND)
     return response
 
-def handleCallback(request):
+def handleCallbackFromSlack(request):
     Logger.logIncomingRequest(request.headers, request.get_data())
 
     verificationCode = request.args.get("code")
@@ -44,4 +44,4 @@ def handleCallback(request):
    
     jsonBody = response.json()
     UserAccessTokenStorage.authorizeUser(jsonBody["user_id"], jsonBody["access_token"])
-    return "Authorization successful!"
+    return "Authorization successful!\n" + "Scanish translator can now translate for you! Begin by registering which language you want translated by typing \"/scanish --register swedish\" in a workspace where Scanish translator is installed!"
