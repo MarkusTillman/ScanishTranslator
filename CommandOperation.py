@@ -3,6 +3,7 @@ import logging
 from flask import jsonify
 import sys
 import argparse
+import RequestHandler
 
 commandArgumentParser = argparse.ArgumentParser()
 commandArgumentParser.add_argument("--register", 
