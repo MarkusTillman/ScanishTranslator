@@ -33,7 +33,7 @@ def handleCallback(request):
     }
     logging.info("Posting request: \n" + str(headers) + "\n" + str(requestParameters))
     response = requests.post("https://slack.com/api/oauth.access", headers = headers, data = requestParameters)
-    logging.info("Post response: \n" + str(response.content))
+    logging.info("Post response: \n" + str(response.headers) + "\n" + str(response.content))
    
     jsonBody = response.json()
     UserAccessTokenStorage.authorizeUser(jsonBody["user_id"], jsonBody["access_token"])

@@ -21,4 +21,4 @@ def send(chatData):
     }
     logging.info("Posting request: \n" + str(headers) + "\n" + str(json))
     response = requests.post("https://slack.com/api/chat.update", headers = headers, json = json)
-    logging.info("Post response: \n" + str(response.content))
+    logging.info("Post response: \n" + str(response.headers) + "\n" + str(response.content))
