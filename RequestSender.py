@@ -1,5 +1,5 @@
-import logging
 import requests
+import Logger
 
 import UserAccessTokenStorage
 
@@ -19,6 +19,7 @@ def send(chatData):
         "Content-Type": "application/json;charset=utf-8",
         "Authorization": "Bearer " + UserAccessTokenStorage.getToken(chatData.userId)
     }
-    logging.info("Posting request: \n" + str(headers) + "\n" + str(json))
-    response = requests.post("https://slack.com/api/chat.update", headers = headers, json = json)
-    logging.info("Post response: \n" + str(response.headers) + "\n" + str(response.content))
+    url = "https://slack.com/api/chat.update"
+    Logger.logOutgoingRequest(headers, json, url)
+    response = requests.post(url = url, headers = headers, json = json)
+    Logger.logIncomingResponse(response.headers, response.content)

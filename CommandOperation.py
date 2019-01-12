@@ -5,6 +5,7 @@ import sys
 import argparse
 import RequestHandler
 import UserStorage
+import Logger
 
 commandArgumentParser = argparse.ArgumentParser()
 commandArgumentParser.add_argument("--register", 
@@ -14,6 +15,7 @@ commandArgumentParser.add_argument("--register",
     metavar="languageToTranslateFrom")
 
 def handle(request):
+    Logger.logIncomingRequest(request.headers, request.get_data())
     try:
         RequestHandler.verifyRequest(request)
         arguments = parseArguments(request.form["text"], commandArgumentParser)
