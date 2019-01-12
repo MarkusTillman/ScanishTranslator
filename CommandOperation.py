@@ -26,3 +26,8 @@ def handle(request):
     except:
         logging.error("Unexpected error: " + str(sys.exc_info()))
         return jsonify({ "response_type": "ephemeral", "text": commandArgumentParser.format_help()})
+
+def parseArguments(text, argumentParser):
+    argumentName = text.split(" ")[0]
+    argumentValue = text[len(argumentName) + 1:]
+    return argumentParser.parse_args([argumentName, argumentValue])
