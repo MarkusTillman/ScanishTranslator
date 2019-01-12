@@ -4,22 +4,15 @@ import RequestHandler
 import RequestSender
 import UserStorage
 import AuthorizationOperation
+import CommandOperation
 import logging
 from ChatData import ChatData
 import sys
-from flask import Flask, jsonify, request
+from flask import Flask, request
 import _thread
 
 app = Flask(__name__)
-
 logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
-
-commandArgumentParser = argparse.ArgumentParser()
-commandArgumentParser.add_argument("--register", 
-    help=   "Register how your text shall be translated.\n" +
-            "scanish=translate from Scanish to Swedish.\n" +
-            "swedish=translate from Swedish to Scanish.\n",
-    metavar="languageToTranslateFrom")
 
 eventArgumentParser = argparse.ArgumentParser()
 eventArgumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
@@ -52,22 +45,9 @@ def handleAuthorizationCallback():
     return AuthorizationOperation.handleCallback(request)
 
 @app.route("/scanish", methods=["POST"])
-def handleUrlEncodedCommands():
+def handleSlackCommand():
     logReceivedRequest(request)
-    try:
-        RequestHandler.verifyRequest(request)
-        arguments = parseArguments(request.form["text"], commandArgumentParser)
-        if arguments.register:
-            UserStorage.registerUser(request.form["user_id"], arguments.register)
-            return jsonify({
-                "response_type": "ephemeral",
-                "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]
-            })
-        return jsonify({ "response_type": "ephemeral", "text": commandArgumentParser.format_help()})
-    except:
-        logging.error("Unexpected error: " + str(sys.exc_info()))
-        return jsonify({ "response_type": "ephemeral", "text": commandArgumentParser.format_help()})
-
+    return CommandOperation.handle(request)
 
 @app.route("/", methods=["POST"])
 def handleJsonEvents():
