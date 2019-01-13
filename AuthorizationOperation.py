@@ -33,6 +33,7 @@ def handleCallbackFromSlack(request):
         persistUserAccessToken(response)
         return "Authorization successful!\n" + "Scanish translator can now translate for you! Begin by registering which language you want translated by typing \"/scanish --register swedish\" in a workspace where Scanish translator is installed!"
     except:
+        Logger.logUnexpectedError()
         return "Unknown error"
 
 def persistUserAccessToken(response):

@@ -1,4 +1,5 @@
 import logging
+import sys
 
 logging.basicConfig(filename="log.log", level=logging.DEBUG, filemode="w")
 
@@ -13,3 +14,6 @@ def logOutgoingRequest(headers, body, url):
 def logIncomingResponse(headers, body):
     logging.info("Received response: ")
     logging.info(str(headers) + "\n" + str(body))
+
+def logUnexpectedError():
+    logging.error("Unexpected error: " + str(sys.exc_info()))

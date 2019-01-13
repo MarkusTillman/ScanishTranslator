@@ -70,6 +70,14 @@ class TestCallbackFromSlack:
 
         RequestSender.post.assert_not_called()
 
+    def testThatErrorsAreLogged(self):
+        requestWithoutVerificationCode = Mock()
+        Logger.logUnexpectedError = MagicMock()
+
+        AuthorizationOperation.handleCallbackFromSlack(requestWithoutVerificationCode)
+
+        Logger.logUnexpectedError.assert_called()
+
 
 def mockRequest(verificationCode=""):
     requestMock = Mock()
