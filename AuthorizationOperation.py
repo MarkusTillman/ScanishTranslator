@@ -1,47 +1,38 @@
-import logging
-import base64
-import requests
 import UserAccessTokenStorage
-from flask import redirect
-from http import HTTPStatus
+import RequestSender
 import Logger
+import urllib.parse
 
 clientSecret = open("client.secret", "r").read()
-clientId = "492531746400.493469272005" # todo: file
-permissionsToAuthorize = [ "chat:write:user", "im:write" ] # todo: file
+clientId = "492531746400.493469272005"
+permissionsForUserToAuthorize = [ "chat:write:user", "im:write" ]
 
 def redirectToSlack(request):
     Logger.logIncomingRequest(request.headers, request.get_data())
 
     requestParameters = {
         "client_id":  clientId,
-        "scope": str.join(' ', permissionsToAuthorize)
+        "scope": str.join(' ', permissionsForUserToAuthorize)
     }
-    formattedRequestParameters = '&'.join("{!s}={!s}".format(key, value) for (key, value) in requestParameters.items())
-    url = "https://slack.com/oauth/authorize?" + formattedRequestParameters
-    logging.info("Redirecting GET request to " + url)
-    response = redirect(url, HTTPStatus.FOUND)
-    return response
+    url = "https://slack.com/oauth/authorize?" + urllib.parse.urlencode(requestParameters)
+    return RequestSender.redirectRequest(request, url)
 
 def handleCallbackFromSlack(request):
     Logger.logIncomingRequest(request.headers, request.get_data())
 
-    verificationCode = request.args.get("code")
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": "Basic " + base64.b64encode((clientId + ":" + clientSecret).encode("UTF-8")).decode("UTF-8")
     }
     requestParameters = {
         "client_id": clientId,
         "client_secret": clientSecret,
-        "code": verificationCode
+        "code": request.args.get("code")
     }
-    formattedRequestParameters = '&'.join("{!s}={!s}".format(key, value) for (key, value) in requestParameters.items())
-    url = "https://slack.com/api/oauth.access?" + formattedRequestParameters
-    Logger.logOutgoingRequest(headers, requestParameters, url)
-    response = requests.post(url = url, headers = headers)
-    Logger.logIncomingResponse(response.headers, response.content)
-   
+    url = "https://slack.com/api/oauth.access?" + urllib.parse.urlencode(requestParameters)
+    response = RequestSender.post(url = url, headers = headers, username=clientId, password=clientSecret)
+    persistUserAccessToken(response)
+    return "Authorization successful!\n" + "Scanish translator can now translate for you! Begin by registering which language you want translated by typing \"/scanish --register swedish\" in a workspace where Scanish translator is installed!"
+
+def persistUserAccessToken(response):
     jsonBody = response.json()
     UserAccessTokenStorage.authorizeUser(jsonBody["user_id"], jsonBody["access_token"])
-    return "Authorization successful!\n" + "Scanish translator can now translate for you! Begin by registering which language you want translated by typing \"/scanish --register swedish\" in a workspace where Scanish translator is installed!"
