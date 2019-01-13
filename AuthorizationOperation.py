@@ -19,19 +19,21 @@ def redirectToSlack(request):
 
 def handleCallbackFromSlack(request):
     Logger.logIncomingRequest(request.headers, request.get_data())
-
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
-    requestParameters = {
-        "client_id": clientId,
-        "client_secret": clientSecret,
-        "code": request.args.get("code")
-    }
-    url = "https://slack.com/api/oauth.access?" + urllib.parse.urlencode(requestParameters)
-    response = RequestSender.post(url = url, headers = headers, username=clientId, password=clientSecret)
-    persistUserAccessToken(response)
-    return "Authorization successful!\n" + "Scanish translator can now translate for you! Begin by registering which language you want translated by typing \"/scanish --register swedish\" in a workspace where Scanish translator is installed!"
+    try:
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        requestParameters = {
+            "client_id": clientId,
+            "client_secret": clientSecret,
+            "code": request.args["code"]
+        }
+        url = "https://slack.com/api/oauth.access?" + urllib.parse.urlencode(requestParameters)
+        response = RequestSender.post(url = url, headers = headers, username=clientId, password=clientSecret)
+        persistUserAccessToken(response)
+        return "Authorization successful!\n" + "Scanish translator can now translate for you! Begin by registering which language you want translated by typing \"/scanish --register swedish\" in a workspace where Scanish translator is installed!"
+    except:
+        return "Unknown error"
 
 def persistUserAccessToken(response):
     jsonBody = response.json()
