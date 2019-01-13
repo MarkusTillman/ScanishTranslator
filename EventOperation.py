@@ -28,7 +28,7 @@ def handle(request):
             letNewThreadHandleTheTranslation(jsonData)
         return ""
     except:
-        logging.error("Unexpected error: " + str(sys.exc_info()))
+        Logger.logUnexpectedError()
         return ""
 
 def parseArguments(text, argumentParser):
@@ -74,7 +74,7 @@ def doTheTranslation(jsonData):
         chatData = createChatData(jsonData, translatedText)
         RequestSender.send(chatData)
     except:
-        logging.error("Unexpected error: " + str(sys.exc_info()))
+        Logger.logUnexpectedError()
 
 def translate(jsonData):
     text = jsonData["event"]["text"]

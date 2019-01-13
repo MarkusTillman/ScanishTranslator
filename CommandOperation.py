@@ -1,5 +1,3 @@
-
-import logging
 from flask import jsonify
 import sys
 import argparse
@@ -27,7 +25,7 @@ def handle(request):
             })
         return jsonify({ "response_type": "ephemeral", "text": commandArgumentParser.format_help()})
     except:
-        logging.error("Unexpected error: " + str(sys.exc_info()))
+        Logger.logUnexpectedError()
         return jsonify({ "response_type": "ephemeral", "text": commandArgumentParser.format_help()})
 
 def parseArguments(text, argumentParser):
