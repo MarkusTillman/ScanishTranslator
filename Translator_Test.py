@@ -58,3 +58,7 @@ class TestTranslateSwedishToScanish:
     def testThatSeveralWordsDividedBySpecialCharactersCanBeTranslated(self):
         swedish = "Jävla dumhuvud; jag. är. så, trött/irriterad på dig, och dina föräldrar!"
         assert Translator.toScanish(swedish) == "Jävla ålahue; jau. ei. så, ked/putt på daj, o dina päron!"
+
+class TestOtherStuff:
+    def testThatSupportedLanguagesAreOnlyScanishAndSwedish(self):
+        assert Translator.getSupportedLanguages() == {"scanish", "swedish"}

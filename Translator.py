@@ -6,6 +6,9 @@ twoWayDictionary = bidict(json.load(open("twoWay.dict", encoding="utf-8")))
 swedishDictionary = json.load(open("swedishToScanish.dict", encoding="utf-8"))
 scanishDictionary = json.load(open("scanishToSwedish.dict", encoding="utf-8"))
 
+def getSupportedLanguages():
+    return {"scanish", "swedish"}
+
 def toSwedish(scanishText):
     if scanishText.isspace():
         return scanishText
