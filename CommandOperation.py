@@ -14,7 +14,7 @@ argumentParser.add_argument("--register",
 def handle(request):
     onlyReplyToCallingUser = "ephemeral"
     try:
-        action = parseArguments(request.form["text"], argumentParser)
+        action = parseArguments(request.form["text"])
         if action.register and verifyLanguageToRegister(action.register):
             UserStorage.registerUser(request.form["user_id"], action.register)
             return jsonify({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]})
@@ -23,7 +23,7 @@ def handle(request):
         Logger.logUnexpectedError()
         return jsonify({"response_type": onlyReplyToCallingUser, "text": argumentParser.format_help()})
 
-def parseArguments(slackText, argumentParser):
+def parseArguments(slackText):
     action = slackText.split(" ")[0]
     actionArgument = slackText[len(action) + 1:]
     return argumentParser.parse_args([action, actionArgument])

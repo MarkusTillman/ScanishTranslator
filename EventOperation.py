@@ -7,42 +7,25 @@ import _thread
 from ChatData import ChatData
 import RequestSender
 import Logger
+from flask import jsonify
 
-eventArgumentParser = argparse.ArgumentParser()
-eventArgumentParser.add_argument("--scanish", help="Scanish text to be translated to Swedish")
-eventArgumentParser.add_argument("--swedish", help="Swedish text to be translated to Scanish")
+argumentParser = argparse.ArgumentParser()
+argumentParser.add_argument("--scanish", help="Translate Scanish to Swedish")
+argumentParser.add_argument("--swedish", help="Translate Swedish to Scanish")
 
 def handle(request):
     try:
         jsonData = request.get_json()
-        if not jsonData:
-            logging.warning("Expected JSON data")
-            return ""
-
         if "challenge" in jsonData:
-            return jsonify({ "challenge" : jsonData["challenge"] })
+            return handleChallengeRequest(jsonData)
         elif shallTranslate(jsonData):
             letNewThreadHandleTheTranslation(jsonData)
-        return ""
     except:
         Logger.logUnexpectedError()
-        return ""
+    return ""
 
-def parseArguments(text, argumentParser):
-    argumentName = text.split(" ")[0]
-    argumentValue = text[len(argumentName) + 1:]
-    return argumentParser.parse_args([argumentName, argumentValue])
-
-def translateText(arguments):
-    if arguments.scanish:
-        return Translator.toSwedish(arguments.scanish)
-    elif arguments.swedish:
-        return Translator.toScanish(arguments.swedish)
-    else:
-        return "No text to translate"
-
-def isCommand(text):
-    return text[0] == '/'
+def handleChallengeRequest(jsonData):
+    return jsonify({ "challenge" : jsonData["challenge"] })
 
 def shallTranslate(jsonData):
     if "event" not in jsonData:
@@ -61,15 +44,18 @@ def shallTranslate(jsonData):
     if not UserStorage.isRegisteredUser(event["user"]):
         return False
     return True
+ 
+def isCommand(text):
+    return text[0] == '/'
 
 def letNewThreadHandleTheTranslation(jsonData):
-    _thread.start_new_thread(doTheTranslation, (jsonData, ))
+    _thread.start_new_thread(handleTheTranslation, (jsonData, ))
 
-def doTheTranslation(jsonData):
+def handleTheTranslation(jsonData):
     try:
         originalText = jsonData["event"]["text"]
         userId = jsonData["event"]["user"]
-        translatedText = translate(originalText, userId)
+        translatedText = translateTextForUser(originalText, userId)
         if originalText != translatedText:
             chatData = createChatData(jsonData, translatedText)
             RequestSender.send(chatData)
@@ -78,9 +64,15 @@ def doTheTranslation(jsonData):
     except:
         Logger.logUnexpectedError()
 
-def translate(textToTranslate, userId):
-    arguments = parseArguments("--" + UserStorage.getTranslationModeFor(userId) + " " + textToTranslate, eventArgumentParser)
-    return translateText(arguments)
+def translateTextForUser(textToTranslate, userId):
+    languageToTranslate = UserStorage.getTranslationModeFor(userId)
+    action = argumentParser.parse_args(["--" + languageToTranslate, textToTranslate])
+    if action.scanish:
+        return Translator.toSwedish(action.scanish)
+    elif action.swedish:
+        return Translator.toScanish(action.swedish)
+    else:
+        return "No text to translate"
 
 def createChatData(jsonData, translatedText):
     event = jsonData["event"]
