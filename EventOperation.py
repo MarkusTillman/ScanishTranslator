@@ -67,16 +67,19 @@ def letNewThreadHandleTheTranslation(jsonData):
 
 def doTheTranslation(jsonData):
     try:
-        translatedText = translate(jsonData)
-        chatData = createChatData(jsonData, translatedText)
-        RequestSender.send(chatData)
+        originalText = jsonData["event"]["text"]
+        userId = jsonData["event"]["user"]
+        translatedText = translate(originalText, userId)
+        if originalText != translatedText:
+            chatData = createChatData(jsonData, translatedText)
+            RequestSender.send(chatData)
+        else:
+            logging.info("Did not send request to translate: text is same after translation")
     except:
         Logger.logUnexpectedError()
 
-def translate(jsonData):
-    text = jsonData["event"]["text"]
-    userId = jsonData["event"]["user"]
-    arguments = parseArguments("--" + UserStorage.getTranslationModeFor(userId) + " " + text, eventArgumentParser)
+def translate(textToTranslate, userId):
+    arguments = parseArguments("--" + UserStorage.getTranslationModeFor(userId) + " " + textToTranslate, eventArgumentParser)
     return translateText(arguments)
 
 def createChatData(jsonData, translatedText):
