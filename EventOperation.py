@@ -1,13 +1,13 @@
 import logging
-import sys
-import UserStorage
 import argparse
-import Translator
 import _thread
-from ChatData import ChatData
-import RequestSender
-import Logger
 from flask import jsonify
+
+import UserStorage
+import ChatUpdater
+import Translator
+from ChatData import ChatData
+import Logger
 
 argumentParser = argparse.ArgumentParser()
 argumentParser.add_argument("--scanish", help="Translate Scanish to Swedish")
@@ -58,7 +58,7 @@ def handleTheTranslation(jsonData):
         translatedText = translateTextForUser(originalText, userId)
         if originalText != translatedText:
             chatData = createChatData(jsonData, translatedText)
-            RequestSender.send(chatData)
+            ChatUpdater.updateChat(chatData)
         else:
             logging.info("Did not send request to translate: text is same after translation")
     except:
