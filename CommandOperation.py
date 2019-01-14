@@ -1,6 +1,5 @@
 from flask import jsonify
 import argparse
-import RequestHandler
 import UserStorage
 import Logger
 import Translator
@@ -13,10 +12,8 @@ argumentParser.add_argument("--register",
     metavar="languageToTranslateFrom")
 
 def handle(request):
-    Logger.logIncomingRequest(request.headers, request.get_data())
     onlyReplyToCallingUser = "ephemeral"
     try:
-        RequestHandler.verifyRequest(request)
         action = parseArguments(request.form["text"], argumentParser)
         if action.register and verifyLanguageToRegister(action.register):
             UserStorage.registerUser(request.form["user_id"], action.register)

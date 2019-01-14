@@ -8,8 +8,6 @@ clientId = "492531746400.493469272005"
 permissionsForUserToAuthorize = [ "chat:write:user", "im:write" ]
 
 def redirectToSlack(request):
-    Logger.logIncomingRequest(request.headers, request.get_data())
-
     requestParameters = {
         "client_id":  clientId,
         "scope": str.join(' ', permissionsForUserToAuthorize)
@@ -18,7 +16,6 @@ def redirectToSlack(request):
     return RequestSender.redirectRequest(request, url)
 
 def handleCallbackFromSlack(request):
-    Logger.logIncomingRequest(request.headers, request.get_data())
     try:
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",

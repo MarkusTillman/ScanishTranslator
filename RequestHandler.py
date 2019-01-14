@@ -5,7 +5,7 @@ from flask import request, abort
 
 binarySigningSecret = open("signing.secret", "rb").read()
 
-def verifyRequest(request):
+def verifySlackRequest(request):
     receivedSignature = request.headers["X-Slack-Signature"]
     timestamp = request.headers["X-Slack-Request-Timestamp"] 
     rawBody = request.get_data()

@@ -5,7 +5,6 @@ import argparse
 import Translator
 import _thread
 from ChatData import ChatData
-import RequestHandler
 import RequestSender
 import Logger
 
@@ -14,9 +13,7 @@ eventArgumentParser.add_argument("--scanish", help="Scanish text to be translate
 eventArgumentParser.add_argument("--swedish", help="Swedish text to be translated to Scanish")
 
 def handle(request):
-    Logger.logIncomingRequest(request.headers, request.get_data())
     try:
-        RequestHandler.verifyRequest(request)
         jsonData = request.get_json()
         if not jsonData:
             logging.warning("Expected JSON data")

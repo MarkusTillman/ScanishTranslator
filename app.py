@@ -4,21 +4,29 @@ from flask import Flask, request
 import AuthorizationOperation
 import CommandOperation
 import EventOperation
+import Logger
+import RequestHandler
 
 app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def handleUserAuthorizationOfApp():
+    Logger.logIncomingRequest(request.headers, request.get_data())
     return AuthorizationOperation.redirectToSlack(request)
 
 @app.route("/verificationCode", methods=["GET"])
 def handleUserAuthorizationCallback():
+    Logger.logIncomingRequest(request.headers, request.get_data())
     return AuthorizationOperation.handleCallbackFromSlack(request)
 
 @app.route("/scanish", methods=["POST"])
 def handleSlackCommand():
+    Logger.logIncomingRequest(request.headers, request.get_data())
+    RequestHandler.verifySlackRequest(request)
     return CommandOperation.handle(request)
 
 @app.route("/", methods=["POST"])
 def handleSubscribedSlackEvents():
+    Logger.logIncomingRequest(request.headers, request.get_data())
+    RequestHandler.verifySlackRequest(request)
     return EventOperation.handle(request)
