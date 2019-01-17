@@ -6,14 +6,6 @@ import re
 import UserAccessTokenStorage
 
 class TestRedirection:
-    def testThatRequestToBeRedirectedIsLogged(self):
-        requestMock = Mock()
-        Logger.logIncomingRequest = MagicMock()
-
-        AuthorizationOperation.redirectToSlack(requestMock)
-
-        Logger.logIncomingRequest.assert_called()
-
     def testThatUserIsRedirectedToSlackForAuthorization(self):
         requestMock = Mock()
         RequestSender.redirectRequest = MagicMock()
@@ -24,16 +16,6 @@ class TestRedirection:
         assert "https://slack.com/oauth/authorize" in url
 
 class TestCallbackFromSlack:
-    def testThatRequestIsLogged(self):
-        requestMock = Mock()
-        responseMock = mockResponse()
-        Logger.logIncomingRequest = MagicMock()
-        RequestSender.post = MagicMock(return_value = responseMock)
-
-        AuthorizationOperation.handleCallbackFromSlack(requestMock)
-
-        Logger.logIncomingRequest.assert_called()
-
     def testThatCodeInRequestIsSentToSlack(self): 
         requestMock = mockRequest(verificationCode = "123")
         responseMock = mockResponse()
