@@ -2,7 +2,7 @@
 import shelve
 from Storage import Storage 
 
-storage = Storage("user.token", mode='c', writeback=False)
+storage = Storage("userToken.storage", mode='c', writeback=False)
 
 def hasAuthorized(user):
     return storage.exists(user)

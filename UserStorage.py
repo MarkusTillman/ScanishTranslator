@@ -2,13 +2,13 @@
 import shelve
 from Storage import Storage 
 
-userStorage = Storage("user.storage", mode='c', writeback=False)
+storage = Storage("user.storage", mode='c', writeback=False)
 
-def isRegisteredUser(userString):
-    return userStorage.exists(userString)
+def isRegisteredUser(user):
+    return storage.exists(user)
 
-def registerUser(userString, translationMode):
-    userStorage.add(userString, translationMode)
+def registerUser(user, translationMode):
+    storage.add(user, translationMode)
 
-def getTranslationModeFor(userString):
-    return userStorage.get(userString)
+def getTranslationModeFor(user):
+    return storage.get(user)
