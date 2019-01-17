@@ -1,70 +1,61 @@
 import AuthorizationOperation
-from unittest.mock import MagicMock, Mock
+import unittest
+from unittest.mock import MagicMock, Mock, patch
 import RequestSender
 import Logger
 import re
 import UserAccessTokenStorage
 
-class TestRedirection:
-    def testThatUserIsRedirectedToSlackForAuthorization(self):
+class TestRedirection(unittest.TestCase):
+
+    @patch('RequestSender.redirectRequest')
+    def testThatUserIsRedirectedToSlackForAuthorization(self, redirectRequestMock):
         requestMock = Mock()
-        RequestSender.redirectRequest = MagicMock()
 
         AuthorizationOperation.redirectToSlack(requestMock)
 
-        url = RequestSender.redirectRequest.call_args[0][1]
+        url = redirectRequestMock.call_args[0][1]
         assert "https://slack.com/oauth/authorize" in url
 
-class TestCallbackFromSlack:
-    def testThatCodeInRequestIsSentToSlack(self): 
+class TestCallbackFromSlack(unittest.TestCase):
+    
+    @patch('RequestSender.post')
+    def testThatCodeInRequestIsSentToSlack(self, postMock): 
         requestMock = mockRequest(verificationCode = "123")
-        responseMock = mockResponse()
-        RequestSender.post = MagicMock(return_value = responseMock)
+        postMock.return_value = mockResponse()
 
         AuthorizationOperation.handleCallbackFromSlack(requestMock)
         
-        url = RequestSender.post.call_args[1]["url"]
+        url = postMock.call_args[1]["url"]
         assert re.match(r"https://slack.com/api/oauth.access.*code=123", url) 
 
-    def testThatAccessTokenInResponseIsPersistedForUserWhoAuthorized(self):
-        requestMock = mockRequest()
-        responseMock = mockResponse("user", "token")
-        RequestSender.post = MagicMock(return_value = responseMock)
-        UserAccessTokenStorage.authorizeUser = MagicMock()
+    @patch('UserAccessTokenStorage.authorizeUser')
+    @patch('RequestSender.post')
+    def testThatAccessTokenInResponseIsPersistedForUserWhoAuthorized(self, postMock, authorizeUserMock):
+        postMock.return_value = mockResponse("user", "token")
+        AuthorizationOperation.handleCallbackFromSlack(mockRequest())
+        authorizeUserMock.assert_called_with("user", "token")
 
-        AuthorizationOperation.handleCallbackFromSlack(requestMock)
-
-        UserAccessTokenStorage.authorizeUser.assert_called_with("user", "token")
-
-    def testThatUserReceivesWelcomeMessageUponSuccess(self):
-        requestMock = mockRequest()
-        assert "Authorization successful" in AuthorizationOperation.handleCallbackFromSlack(requestMock)
+    @patch('RequestSender.post')
+    def testThatUserReceivesWelcomeMessageUponSuccess(self, postMock):
+        postMock.return_value = mockResponse("user", "token")
+        assert "Authorization successful" in AuthorizationOperation.handleCallbackFromSlack(mockRequest())
         
     def testThatUserIsToldOfUnknownErrorWhenInternalErrorHappens(self):
         requestWithoutVerificationCode = Mock()
         assert "Unknown error" in AuthorizationOperation.handleCallbackFromSlack(requestWithoutVerificationCode)
     
-    def testThatNoRequestIsSentToSlackWhenInternalErrorHappens(self):
+    @patch('RequestSender.post')
+    def testThatNoRequestIsSentToSlackWhenInternalErrorHappens(self, postMock):
         requestWithoutVerificationCode = Mock()
-        RequestSender.post = MagicMock()
-
         AuthorizationOperation.handleCallbackFromSlack(requestWithoutVerificationCode)
+        postMock.assert_not_called()
 
-        RequestSender.post.assert_not_called()
-
-    def testThatErrorsAreLogged(self):
+    @patch('Logger.logUnexpectedError')
+    def testThatErrorsAreLogged(self, logUnexpectedErrorMock):
         requestWithoutVerificationCode = Mock()
-        Logger.logUnexpectedError = MagicMock()
-
         AuthorizationOperation.handleCallbackFromSlack(requestWithoutVerificationCode)
-
-        Logger.logUnexpectedError.assert_called()
-
-    @classmethod
-    def tearDownClass(cls):
-        RequestSender.redirectRequest.reset_mock(return_value = True, side_effect = True)
-        RequestSender.post.reset_mock(return_value = True, side_effect = True)
-        UserAccessTokenStorage.authorizeUser.reset_mock(side_effect = True)
+        logUnexpectedErrorMock.assert_called()
 
 def mockRequest(verificationCode=""):
     requestMock = Mock()

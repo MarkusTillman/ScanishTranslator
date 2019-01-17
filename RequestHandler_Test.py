@@ -2,7 +2,7 @@ import RequestHandler
 import logging
 import SignatureComputer
 import unittest
-from unittest.mock import MagicMock, Mock
+from unittest.mock import MagicMock, Mock, patch
 
 class TestRequestHandler(unittest.TestCase):
     def testThatSignatureHeaderIsRequired(self):
@@ -17,20 +17,16 @@ class TestRequestHandler(unittest.TestCase):
         }
         self.assertRaisesRegex(KeyError, "X-Slack-Request-Timestamp", RequestHandler.verifySlackRequest, request)
 
-    def testThatWarningIsLoggedAndBadRequestIsThrownWhenSignatureDoesNotMatch(self):
-        logging.warning = Mock()
+    @patch('logging.warning')
+    @patch('SignatureComputer.createSlackSignature')
+    def testThatWarningIsLoggedAndBadRequestIsThrownWhenSignatureDoesNotMatch(self, createSlackSignatureMock, warningMock):
         request = Mock()
         request.headers = {
             "X-Slack-Signature": "abc",
             "X-Slack-Request-Timestamp": "123"
         }
         request.get_data = lambda: b"body"
-        SignatureComputer.createSlackSignature = MagicMock(return_value = "cbswa")
+        createSlackSignatureMock.return_value = "cba"
         
         self.assertRaisesRegex(Exception, "400 Bad Request.*", RequestHandler.verifySlackRequest, request)
-        logging.warning.assert_called()
-
-    @classmethod
-    def tearDownClass(cls):
-        SignatureComputer.createSlackSignature.reset_mock(return_value = True)
-        logging.warning.reset_mock()
+        warningMock.assert_called()
