@@ -60,6 +60,11 @@ class TestCallbackFromSlack:
 
         Logger.logUnexpectedError.assert_called()
 
+    @classmethod
+    def tearDownClass(cls):
+        RequestSender.redirectRequest.reset_mock(return_value = True, side_effect = True)
+        RequestSender.post.reset_mock(return_value = True, side_effect = True)
+        UserAccessTokenStorage.authorizeUser.reset_mock(side_effect = True)
 
 def mockRequest(verificationCode=""):
     requestMock = Mock()

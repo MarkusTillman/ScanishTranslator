@@ -29,6 +29,8 @@ class TestRequestHandler(unittest.TestCase):
         
         self.assertRaisesRegex(Exception, "400 Bad Request.*", RequestHandler.verifySlackRequest, request)
         logging.warning.assert_called()
-        SignatureComputer.createSlackSignature.reset_mock(return_value = True)
 
-        
+    @classmethod
+    def tearDownClass(cls):
+        SignatureComputer.createSlackSignature.reset_mock(return_value = True)
+        logging.warning.reset_mock()
