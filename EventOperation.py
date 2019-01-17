@@ -1,17 +1,9 @@
-import logging
-import argparse
 import _thread
 from flask import jsonify
 
 import UserStorage
-import ChatUpdater
-import Translator
-from ChatData import ChatData
 import Logger
-
-argumentParser = argparse.ArgumentParser()
-argumentParser.add_argument("--scanish", help="Translate Scanish to Swedish")
-argumentParser.add_argument("--swedish", help="Translate Swedish to Scanish")
+import EventTranslator
 
 def handle(request):
     try:
@@ -19,7 +11,7 @@ def handle(request):
         if "challenge" in jsonData:
             return handleChallengeRequest(jsonData)
         elif shallTranslate(jsonData):
-            letNewThreadHandleTheTranslation(jsonData)
+            _thread.start_new_thread(EventTranslator.handleCallbackToSlack, (jsonData["token"], jsonData["event"]))
     except:
         Logger.logUnexpectedError()
     return ""
@@ -47,39 +39,3 @@ def shallTranslate(jsonData):
  
 def isCommand(text):
     return text[0] == '/'
-
-def letNewThreadHandleTheTranslation(jsonData):
-    _thread.start_new_thread(handleTheTranslation, (jsonData, ))
-
-def handleTheTranslation(jsonData):
-    try:
-        originalText = jsonData["event"]["text"]
-        userId = jsonData["event"]["user"]
-        translatedText = translateTextForUser(originalText, userId)
-        if originalText != translatedText:
-            chatData = createChatData(jsonData, translatedText)
-            ChatUpdater.updateChat(chatData)
-        else:
-            logging.info("Did not send request to translate: text is same after translation")
-    except:
-        Logger.logUnexpectedError()
-
-def translateTextForUser(textToTranslate, userId):
-    languageToTranslate = UserStorage.getTranslationModeFor(userId)
-    action = argumentParser.parse_args(["--" + languageToTranslate, textToTranslate])
-    if action.scanish:
-        return Translator.toSwedish(action.scanish)
-    elif action.swedish:
-        return Translator.toScanish(action.swedish)
-    else:
-        return "No text to translate"
-
-def createChatData(jsonData, translatedText):
-    event = jsonData["event"]
-    return ChatData(
-        token = jsonData["token"], 
-        channel = event["channel"], 
-        originalText = event["text"], 
-        timestamp = event["ts"], 
-        userId = event["user"],
-        translatedText = translatedText)
