@@ -11,4 +11,4 @@ class ChatData:
         return self.token == other.token and self.channel == other.channel and self.originalText == other.originalText and self.timestamp == other.timestamp and self.userId == other.userId and self.translatedText == other.translatedText
 
     def __str__(self):
-        return F"{self.token} {self.channel} {self.originalText} {self.timestamp} {self.userId} {self.translatedText}"
+        return self.token + " " + self.channel + " " + self.originalText + " " + self.timestamp + " " + self.userId + " " + self.translatedText
