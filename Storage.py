@@ -14,3 +14,6 @@ class Storage:
 
     def get(self, key):
         return self.dictionary.get(key)
+
+    def close(self):
+        self.dictionary.close()

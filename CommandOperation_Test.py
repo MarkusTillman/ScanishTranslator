@@ -4,8 +4,9 @@ from unittest.mock import patch, Mock
 
 class TestRegisterCommand(unittest.TestCase):
 
+    @patch("Logger.logUnexpectedError")
     @patch("ResponseCreator.createJsonResponse")
-    def testThatUnrecognizedCommandReturnsHowToUseTheOperationInTheTextField(self, createJsonResponseMock):
+    def testThatUnrecognizedCommandReturnsHowToUseTheOperationInTheTextField(self, createJsonResponseMock, logUnexpectedErrorMock):
         request = mockRequest("--unrecognizedCommand")
         CommandOperation.handle(request)
         assert "usage" in createJsonResponseMock.call_args[0][0]["text"]

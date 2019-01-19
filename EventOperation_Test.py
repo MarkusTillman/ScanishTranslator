@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 import EventTranslator
 
 class TestEventOperation(unittest.TestCase):
+    
     @patch("ResponseCreator.createJsonResponse")
     def testThatChallengeInRequestIsReturnedInResponseIfSet(self, createJsonResponseMock):
         challengeRequest = mockRequest({ "challenge" : "challenge data" })

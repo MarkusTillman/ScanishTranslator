@@ -19,8 +19,9 @@ class TestRedirection(unittest.TestCase):
 
 class TestCallbackFromSlack(unittest.TestCase):
     
+    @patch('UserAccessTokenStorage.authorizeUser')
     @patch('RequestSender.post')
-    def testThatCodeInRequestIsSentToSlack(self, postMock): 
+    def testThatCodeInRequestIsSentToSlack(self, postMock, authorizeUserMock): 
         requestMock = mockRequest(verificationCode = "123")
         postMock.return_value = mockResponse()
 
@@ -36,17 +37,20 @@ class TestCallbackFromSlack(unittest.TestCase):
         AuthorizationOperation.handleCallbackFromSlack(mockRequest())
         authorizeUserMock.assert_called_with("user", "token")
 
+    @patch('UserAccessTokenStorage.authorizeUser')
     @patch('RequestSender.post')
-    def testThatUserReceivesWelcomeMessageUponSuccess(self, postMock):
+    def testThatUserReceivesWelcomeMessageUponSuccess(self, postMock, authorizeUserMock):
         postMock.return_value = mockResponse("user", "token")
         assert "Authorization successful" in AuthorizationOperation.handleCallbackFromSlack(mockRequest())
-        
-    def testThatUserIsToldOfUnknownErrorWhenInternalErrorHappens(self):
+
+    @patch("Logger.logUnexpectedError")
+    def testThatUserIsToldOfUnknownErrorWhenInternalErrorHappens(self, logUnexpectedErrorMock):
         requestWithoutVerificationCode = Mock()
         assert "Unknown error" in AuthorizationOperation.handleCallbackFromSlack(requestWithoutVerificationCode)
     
+    @patch("Logger.logUnexpectedError")
     @patch('RequestSender.post')
-    def testThatNoRequestIsSentToSlackWhenInternalErrorHappens(self, postMock):
+    def testThatNoRequestIsSentToSlackWhenInternalErrorHappens(self, postMock, logUnexpectedErrorMock):
         requestWithoutVerificationCode = Mock()
         AuthorizationOperation.handleCallbackFromSlack(requestWithoutVerificationCode)
         postMock.assert_not_called()

@@ -1,7 +1,9 @@
 from Storage import Storage
-
-class TestStorage:
-    storage = Storage("test.storage", mode='c', writeback=False)
+import os
+import unittest
+class TestStorage(unittest.TestCase):
+    storageFileName = "test.storage"
+    storage = Storage(storageFileName, mode='c', writeback=False)
 
     def testThatUnregisteredKeyDoesNotExist(self):
         assert self.storage.exists("Unregistered key") == False
@@ -28,3 +30,11 @@ class TestStorage:
         self.storage.add("second key", "second value")
         assert self.storage.get("first key") == "first value"
         assert self.storage.get("second key") == "second value"
+
+    @classmethod
+    def tearDownClass(cls):
+        TestStorage.storage.close()
+        os.remove(TestStorage.storageFileName + ".bak")
+        os.remove(TestStorage.storageFileName + ".dat")
+        os.remove(TestStorage.storageFileName + ".dir")
+        

@@ -10,9 +10,10 @@ class UnitTests(unittest.TestCase):
         logUnexpectedErrorMock.assert_called()
 
 class IntegrationTests(unittest.TestCase):
+    @patch("UserStorage.getTranslationModeFor")
     @patch("ChatUpdater.updateChat")
-    def testThatTextFieldInEventIsMandatory(self, updateChatMock):
-        UserStorage.registerUser("Jane Doe", "scanish")
+    def testThatTextFieldInEventIsMandatory(self, updateChatMock, getTranslationModeForMock):
+        getTranslationModeForMock.return_value = "scanish"
         event = {
             "text": "Ålahue",
             "user": "Jane Doe",
