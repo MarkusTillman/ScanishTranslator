@@ -1,6 +1,5 @@
 import _thread
-from flask import jsonify
-
+import ResponseCreator
 import UserStorage
 import Logger
 import EventTranslator
@@ -9,15 +8,15 @@ def handle(request):
     try:
         jsonData = request.get_json()
         if "challenge" in jsonData:
-            return handleChallengeRequest(jsonData)
+            return handleChallengeRequest(jsonData["challenge"])
         elif shallTranslate(jsonData):
             _thread.start_new_thread(EventTranslator.handleCallbackToSlack, (jsonData["token"], jsonData["event"]))
     except:
         Logger.logUnexpectedError()
     return ""
 
-def handleChallengeRequest(jsonData):
-    return jsonify({ "challenge" : jsonData["challenge"] })
+def handleChallengeRequest(challengeToken):
+    return ResponseCreator.createJsonResponse({ "challenge" : challengeToken })
 
 def shallTranslate(jsonData):
     if "event" not in jsonData:
