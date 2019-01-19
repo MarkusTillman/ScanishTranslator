@@ -1,4 +1,4 @@
-from flask import jsonify
+import ResponseCreator
 import argparse
 import UserStorage
 import Logger
@@ -17,11 +17,10 @@ def handle(request):
         action = parseArguments(request.form["text"])
         if action.register and verifyLanguageToRegister(action.register):
             UserStorage.registerUser(request.form["user_id"], action.register)
-            return jsonify({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]})
-        return jsonify({"response_type": onlyReplyToCallingUser, "text": argumentParser.format_help()})
+            return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]})
     except:
         Logger.logUnexpectedError()
-        return jsonify({"response_type": onlyReplyToCallingUser, "text": argumentParser.format_help()})
+    return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "text": argumentParser.format_help()})
 
 def parseArguments(slackText):
     action = slackText.split(" ")[0]
