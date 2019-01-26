@@ -11,19 +11,31 @@ class TestRegisterCommand(unittest.TestCase):
         CommandOperation.handle(request)
         assert "usage" in createJsonResponseMock.call_args[0][0]["text"]
     
+    @patch("UserAccessTokenStorage.hasAuthorized")
     @patch("UserStorage.registerUser")
     @patch("ResponseCreator.createJsonResponse")
-    def testThatUserAndTheirRequestTranslationModeIsRegistered(self, createJsonResponseMock, registerUserMock):
+    def testThatUserAndTheirRequestTranslationModeIsRegistered(self, createJsonResponseMock, registerUserMock, hasAuthorizedMock):
         request = mockRequest("--register scanish", "user id")
+        hasAuthorizedMock.return_value = True
         CommandOperation.handle(request)
         registerUserMock.assert_called_with("user id", "scanish")
 
+    @patch("UserAccessTokenStorage.hasAuthorized")
     @patch("UserStorage.registerUser")
     @patch("ResponseCreator.createJsonResponse")
-    def testThatUserIsNotifiedOfSuccessfulRegistrationByReceivingAnImageUrl(self, createJsonResponseMock, registerUserMock):
+    def testThatUserIsNotifiedOfSuccessfulRegistrationByReceivingAnImageUrl(self, createJsonResponseMock, registerUserMock, hasAuthorizedMock):
         request = mockRequest("--register scanish", "user id")
+        hasAuthorizedMock.return_value = True
         CommandOperation.handle(request)
         createJsonResponseMock.assert_called_with({"response_type": "ephemeral", "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]})
+
+    @patch("UserAccessTokenStorage.hasAuthorized")
+    @patch("ResponseCreator.createJsonResponse")
+    def testThatUserMustHaveAuthorizedAppBeforeRegisteringLanguageToTranslate(self, createJsonResponseMock, hasAuthorizedMock):
+        request = mockRequest("--register scanish", "user id")
+        hasAuthorizedMock.return_value = False
+        CommandOperation.handle(request)
+        createJsonResponseMock.assert_called_with({"response_type": "ephemeral", "text": "You must first authorize the Scanish app at: https://impartial-ibis-5785.dataplicity.io/"})
 
 def mockRequest(command, userId = None):
     request = Mock()

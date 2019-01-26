@@ -1,6 +1,7 @@
 import ResponseCreator
 import argparse
 import UserStorage
+import UserAccessTokenStorage
 import Logger
 import Translator
 
@@ -14,9 +15,12 @@ argumentParser.add_argument("--register",
 def handle(request):
     onlyReplyToCallingUser = "ephemeral"
     try:
+        userId = request.form["user_id"]
+        if not UserAccessTokenStorage.hasAuthorized(userId):
+            return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "text": "You must first authorize the Scanish app at: https://impartial-ibis-5785.dataplicity.io/"})
         action = parseArguments(request.form["text"])
         if action.register and verifyLanguageToRegister(action.register):
-            UserStorage.registerUser(request.form["user_id"], action.register)
+            UserStorage.registerUser(userId, action.register)
             return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]})
     except:
         Logger.logUnexpectedError()
