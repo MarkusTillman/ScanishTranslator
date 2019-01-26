@@ -7,3 +7,4 @@ env/
 *.secret
 *.storage*
 *.token*
+client.id

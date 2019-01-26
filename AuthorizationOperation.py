@@ -4,7 +4,7 @@ import Logger
 import urllib.parse
 
 clientSecret = open("client.secret", "r").read()
-clientId = "492531746400.493469272005"
+clientId = open("client.id", "r").read()
 permissionsForUserToAuthorize = [ "chat:write:user" ]
 
 def redirectToSlack(request):
