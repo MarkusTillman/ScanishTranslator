@@ -5,7 +5,7 @@ import urllib.parse
 
 clientSecret = open("client.secret", "r").read()
 clientId = "492531746400.493469272005"
-permissionsForUserToAuthorize = [ "chat:write:user", "im:write" ]
+permissionsForUserToAuthorize = [ "chat:write:user" ]
 
 def redirectToSlack(request):
     requestParameters = {
