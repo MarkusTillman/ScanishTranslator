@@ -10,5 +10,8 @@ def isRegisteredUser(user):
 def registerUser(user, translationMode):
     storage.add(user, translationMode)
 
+def unregisterUser(user):
+    storage.remove(user)
+
 def getTranslationModeFor(user):
     return storage.get(user)

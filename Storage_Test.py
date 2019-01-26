@@ -23,13 +23,20 @@ class TestStorage(unittest.TestCase):
         self.storage.add("key", "value")
         self.storage.add("key", "new value")
         assert self.storage.get("key") == "new value"
-
         
     def testThatSeveralKeysCanBeAdded(self):
         self.storage.add("first key", "first value")
         self.storage.add("second key", "second value")
         assert self.storage.get("first key") == "first value"
         assert self.storage.get("second key") == "second value"
+
+    def testThatRemovingNonExistingKeyDoesNothing(self):
+        self.storage.remove("NonExistingKey")
+
+    def testThatKeyAndItsValueCanBeRemoved(self):
+        self.storage.add("key", "value")
+        self.storage.remove("key")
+        assert self.storage.exists("key") == False
 
     @classmethod
     def tearDownClass(cls):

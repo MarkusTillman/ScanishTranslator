@@ -11,6 +11,7 @@ argumentParser.add_argument("--register",
             "scanish=translate from Scanish to Swedish.\n" +
             "swedish=translate from Swedish to Scanish.\n",
     metavar="languageToTranslateFrom")
+argumentParser.add_argument("unregister", nargs='?')
 
 def handle(request):
     onlyReplyToCallingUser = "ephemeral"
@@ -22,14 +23,20 @@ def handle(request):
         if action.register and verifyLanguageToRegister(action.register):
             UserStorage.registerUser(userId, action.register)
             return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]})
+        elif action.unregister:
+            UserStorage.unregisterUser(userId)
+            return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/YYN18jOh.jpg"}]}) 
     except:
         Logger.logUnexpectedError()
     return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "text": argumentParser.format_help()})
 
 def parseArguments(slackText):
     action = slackText.split(" ")[0]
-    actionArgument = slackText[len(action) + 1:]
-    return argumentParser.parse_args([action, actionArgument])
+    optionalActionArgument = slackText[len(action) + 1:]
+    if optionalActionArgument:
+        return argumentParser.parse_args([action, optionalActionArgument])
+    else:
+        return argumentParser.parse_args([action])
 
 def verifyLanguageToRegister(languageToTranslateFrom):
     return languageToTranslateFrom.lower() in Translator.getSupportedLanguages()

@@ -12,6 +12,11 @@ class Storage:
         self.dictionary.update({key: value})
         self.dictionary.sync()
 
+    def remove(self, key):
+        if self.exists(key):
+            del self.dictionary[key]
+            self.dictionary.sync()
+
     def get(self, key):
         return self.dictionary.get(key)
 

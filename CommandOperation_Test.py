@@ -37,6 +37,16 @@ class TestRegisterCommand(unittest.TestCase):
         CommandOperation.handle(request)
         createJsonResponseMock.assert_called_with({"response_type": "ephemeral", "text": "You must first authorize the Scanish app at: https://impartial-ibis-5785.dataplicity.io/"})
 
+    @patch("UserAccessTokenStorage.hasAuthorized")
+    @patch("UserStorage.unregisterUser")
+    @patch("ResponseCreator.createJsonResponse")
+    def testThatUserCanUnregisterSelfFromTranslation(self, createJsonResponseMock, unregisterUserMock, hasAuthorizedMock):
+        request = mockRequest("unregister", "user id")
+        hasAuthorizedMock.return_value = True
+        CommandOperation.handle(request)
+        unregisterUserMock.assert_called_with("user id")
+        createJsonResponseMock.assert_called_with({"response_type": "ephemeral", "attachments": [{"image_url": "https://i.imgur.com/YYN18jOh.jpg"}]})
+
 def mockRequest(command, userId = None):
     request = Mock()
     request.form = {
