@@ -23,7 +23,7 @@ def handle(request):
         if action.register and verifyLanguageToRegister(action.register):
             UserStorage.registerUser(userId, action.register)
             return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]})
-        elif action.unregister:
+        elif action.unregister == "unregister":
             UserStorage.unregisterUser(userId)
             return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/YYN18jOh.jpg"}]}) 
     except:
