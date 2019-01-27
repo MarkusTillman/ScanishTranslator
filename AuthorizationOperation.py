@@ -28,7 +28,7 @@ def handleCallbackFromSlack(request):
         url = "https://slack.com/api/oauth.access?" + urllib.parse.urlencode(requestParameters)
         response = RequestSender.post(url = url, headers = headers, username=clientId, password=clientSecret)
         persistUserAccessToken(response)
-        return "Authorization successful!\n" + "Scanish translator can now translate for you! Begin by registering which language you want translated by typing \"/scanish --register swedish\" in a workspace where Scanish translator is installed!"
+        return "Authorization successful!\n" + "Scanish app can translate for you as soon as you have registered which language you want translated. Type \"/scanish --register swedish\" to tell Scanish to translate from Swedish to Scanish."
     except:
         Logger.logUnexpectedError()
         return "Unknown error"
