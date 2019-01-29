@@ -6,6 +6,7 @@ import CommandOperation
 import EventOperation
 import Logger
 import RequestHandler
+import Translator
 
 app = Flask(__name__)
 
@@ -30,3 +31,12 @@ def handleSubscribedSlackEvents():
     Logger.logIncomingRequest(request.headers, request.get_data())
     RequestHandler.verifySlackRequest(request)
     return EventOperation.handle(request)
+
+@app.route("/translate", methods=["GET"])
+def handleUserRequest():
+    Logger.logIncomingRequest(request.headers, request.get_data())
+    try:
+        textToTranslate = request.args["text"]
+        return Translator.toScanish(textToTranslate)
+    except:
+        return Translator.toScanish(request.data.decode("utf-8"))
