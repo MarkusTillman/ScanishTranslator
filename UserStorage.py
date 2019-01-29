@@ -7,11 +7,8 @@ storage = Storage("user.storage", mode='c', writeback=False)
 def isRegisteredUser(user):
     return storage.exists(user)
 
-def registerUser(user, translationMode):
-    storage.add(user, translationMode)
+def registerUser(user):
+    storage.add(user, True)
 
 def unregisterUser(user):
     storage.remove(user)
-
-def getTranslationModeFor(user):
-    return storage.get(user)

@@ -10,12 +10,12 @@ class UnitTests(unittest.TestCase):
         logUnexpectedErrorMock.assert_called()
 
 class IntegrationTests(unittest.TestCase):
-    @patch("UserStorage.getTranslationModeFor")
+    @patch("UserStorage.isRegisteredUser")
     @patch("ChatUpdater.updateChat")
-    def testThatTextFieldInEventIsMandatory(self, updateChatMock, getTranslationModeForMock):
-        getTranslationModeForMock.return_value = "scanish"
+    def testThatTextFieldInEventIsMandatory(self, updateChatMock, isRegisteredUserMock):
+        isRegisteredUserMock.return_value = True
         event = {
-            "text": "Ålahue",
+            "text": "dumhuvud",
             "user": "Jane Doe",
             "channel": "channel",
             "ts": "timestamp",
@@ -23,5 +23,5 @@ class IntegrationTests(unittest.TestCase):
 
         EventTranslator.handleCallbackToSlack("token", event)
 
-        chatDataWithTranslation = EventTranslator.createChatData("token", event, "dumhuvud")
+        chatDataWithTranslation = EventTranslator.createChatData("token", event, "ålahue")
         updateChatMock.assert_called_with(chatDataWithTranslation)
