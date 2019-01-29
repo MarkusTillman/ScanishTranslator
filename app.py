@@ -26,7 +26,7 @@ def handleSlackCommand():
     RequestHandler.verifySlackRequest(request)
     return CommandOperation.handle(request)
 
-@app.route("/", methods=["POST"])
+@app.route("/events", methods=["POST"])
 def handleSubscribedSlackEvents():
     Logger.logIncomingRequest(request.headers, request.get_data())
     RequestHandler.verifySlackRequest(request)
