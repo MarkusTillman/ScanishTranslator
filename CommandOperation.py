@@ -16,10 +16,10 @@ def handle(request):
     onlyReplyToCallingUser = "ephemeral"
     try:
         userId = request.form["user_id"]
-        if not UserAccessTokenStorage.hasAuthorized(userId):
-            return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "text": "You must first authorize the Scanish app at: https://impartial-ibis-5785.dataplicity.io/"})
         arguments = argumentParser.parse_args([request.form["text"]])
         if arguments.register:
+            if not UserAccessTokenStorage.hasAuthorized(userId):
+                return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "text": "You must first authorize the Scanish app at: https://impartial-ibis-5785.dataplicity.io/"})
             UserStorage.registerUser(userId)
             return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/Kyd9VpM.png"}]})
         elif arguments.unregister:
