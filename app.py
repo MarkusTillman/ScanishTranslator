@@ -32,11 +32,7 @@ def handleSubscribedSlackEvents():
     RequestHandler.verifySlackRequest(request)
     return EventOperation.handle(request)
 
-@app.route("/translate", methods=["GET"])
+@app.route("/translate", methods=["POST"])
 def handleUserRequest():
     Logger.logIncomingRequest(request.headers, request.get_data())
-    try:
-        textToTranslate = request.args["text"]
-        return Translator.toScanish(textToTranslate)
-    except:
-        return Translator.toScanish(request.data.decode("utf-8"))
+    return Translator.toScanish(request.data.decode("utf-8"))
