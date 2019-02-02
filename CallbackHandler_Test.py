@@ -1,4 +1,4 @@
-import EventTranslator
+import CallbackHandler
 import UserStorage
 import unittest
 from unittest.mock import patch
@@ -6,7 +6,7 @@ from unittest.mock import patch
 class UnitTests(unittest.TestCase):
     @patch("Logger.logUnexpectedError")
     def testThatExceptionsAreLogged(self, logUnexpectedErrorMock):
-        EventTranslator.handleCallbackToSlack("token", {})
+        CallbackHandler.handleCallbackToSlack("token", {})
         logUnexpectedErrorMock.assert_called()
 
 class IntegrationTests(unittest.TestCase):
@@ -21,7 +21,7 @@ class IntegrationTests(unittest.TestCase):
             "ts": "timestamp",
         }
 
-        EventTranslator.handleCallbackToSlack("token", event)
+        CallbackHandler.handleCallbackToSlack("token", event)
 
-        chatDataWithTranslation = EventTranslator.createChatData("token", event, "ålahue")
+        chatDataWithTranslation = CallbackHandler.createChatData("token", event, "ålahue")
         updateChatMock.assert_called_with(chatDataWithTranslation)

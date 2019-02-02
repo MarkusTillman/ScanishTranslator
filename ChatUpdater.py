@@ -19,3 +19,14 @@ def updateChat(chatData):
     }
     url = "https://slack.com/api/chat.update"
     RequestSender.post(url = url, json = json, headers = headers)
+
+
+def updateChatWithCommand(commandData):
+    json = {
+        "response_type": commandData.response_type,
+        "text": commandData.translatedText,
+    }
+    headers = {
+        "Content-Type": "application/json;charset=utf-8"
+    }
+    RequestSender.post(url = commandData.response_url, json = json, headers = headers)

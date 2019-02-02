@@ -2,7 +2,7 @@ import _thread
 import ResponseCreator
 import UserStorage
 import Logger
-import EventTranslator
+import CallbackHandler
 
 def handle(request):
     try:
@@ -10,7 +10,7 @@ def handle(request):
         if "challenge" in jsonData:
             return handleChallengeRequest(jsonData["challenge"])
         elif shallTranslate(jsonData):
-            _thread.start_new_thread(EventTranslator.handleCallbackToSlack, (jsonData["token"], jsonData["event"]))
+            _thread.start_new_thread(CallbackHandler.handleCallbackToSlack, (jsonData["token"], jsonData["event"]))
     except:
         Logger.logUnexpectedError()
     return ""

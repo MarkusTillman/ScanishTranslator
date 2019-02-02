@@ -1,7 +1,7 @@
 import EventOperation
 import unittest
 from unittest.mock import Mock, patch
-import EventTranslator
+import CallbackHandler
 
 class TestEventOperation(unittest.TestCase):
     
@@ -32,7 +32,7 @@ class TestEventOperation(unittest.TestCase):
 
         assert EventOperation.handle(requestWithRequiredValues) == ""
 
-        start_new_threadMock.assert_called_with(EventTranslator.handleCallbackToSlack, ("token", event))
+        start_new_threadMock.assert_called_with(CallbackHandler.handleCallbackToSlack, ("token", event))
 
     @patch("_thread.start_new_thread")
     def testThatEventSubtypesAreUnhandled(self, start_new_threadMock):

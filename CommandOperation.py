@@ -4,6 +4,8 @@ import UserStorage
 import UserAccessTokenStorage
 import Logger
 import Translator
+import _thread
+import CallbackHandler
 
 import sys
 
@@ -26,8 +28,8 @@ def handle(request):
             UserStorage.unregisterUser(userId)
             return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/YYN18jOh.jpg"}]}) 
         elif arguments.text:
-            translatedText = Translator.toScanish(arguments.text)
-            return ResponseCreator.createJsonResponse({"response_type": "in_channel", "text": translatedText})
+            _thread.start_new_thread(CallbackHandler.handleCommandCallbackToSlack, (request.form["text"], request.form["response_url"]))
+            return ""
     except:
         Logger.logUnexpectedError()
         print(str(sys.exc_info()))

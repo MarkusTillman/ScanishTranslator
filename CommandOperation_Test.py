@@ -48,17 +48,24 @@ class TestRegisterCommand(unittest.TestCase):
         createJsonResponseMock.assert_called_with({"response_type": "ephemeral", "attachments": [{"image_url": "https://i.imgur.com/YYN18jOh.jpg"}]})
 
     @patch("UserAccessTokenStorage.hasAuthorized")
-    @patch("ResponseCreator.createJsonResponse")
-    def testThatNonOptionalArgumentIsTranslated(self, createJsonResponseMock, hasAuthorizedMock):
-        request = mockRequest("jag är så trött på dig", "user id")
-        hasAuthorizedMock.return_value = True
-        CommandOperation.handle(request)
-        createJsonResponseMock.assert_called_with({"response_type": "in_channel", "text": "jau ei så ked på daj"})
+    @patch("_thread.start_new_thread")
+    def testThatNonOptionalArgumentReturnsEmptyResponse(self, start_new_threadMock, hasAuthorizedMock):
+        request = mockRequest("jag är så trött på dig", "user id", "hooks.slack.com/commands/abc")
+        assert CommandOperation.handle(request) == ""
+        start_new_threadMock.assert_called()
 
-def mockRequest(command, userId = None):
+    @patch("UserAccessTokenStorage.hasAuthorized")
+    @patch("_thread.start_new_thread")
+    def testThatNewThreadIsCreatedToLaterUpdateChatWithTranslation(self, start_new_threadMock, hasAuthorizedMock):
+        request = mockRequest("jag är så trött på dig", "user id", "hooks.slack.com/commands/abc")
+        CommandOperation.handle(request)
+        start_new_threadMock.assert_called()
+
+def mockRequest(command, userId = None, responseUrl = None):
     request = Mock()
     request.form = {
         "text": command,
-        "user_id": userId
+        "user_id": userId,
+        "response_url": responseUrl
     }
     return request
