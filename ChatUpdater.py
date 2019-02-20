@@ -5,13 +5,8 @@ def updateChat(chatData):
     json = {
         "token": chatData.token,
         "channel": chatData.channel,
-        "text": chatData.originalText,
-        "ts": chatData.timestamp,
-        "attachments": [
-            {
-                "text": chatData.translatedText
-            }
-        ]
+        "text": chatData.translatedText,
+        "ts": chatData.timestamp
     }
     headers = {
         "Content-Type": "application/json;charset=utf-8",
