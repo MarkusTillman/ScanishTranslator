@@ -66,6 +66,7 @@ def mockRequest(command, userId = None, responseUrl = None):
     request.form = {
         "text": command,
         "user_id": userId,
+        "user_name": userId,
         "response_url": responseUrl
     }
     return request

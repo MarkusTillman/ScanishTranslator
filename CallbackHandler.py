@@ -6,7 +6,6 @@ import Translator
 import UserStorage
 import Logger
 
-from CommandData import CommandData
 import RequestSender
 
 def handleCallbackToSlack(callbackToken, event):
@@ -30,16 +29,9 @@ def createChatData(callbackToken, event, translatedText):
         userId = event["user"],
         translatedText = translatedText)
 
-def handleCommandCallbackToSlack(textToTranslate, responseUrl):
+def handleCommandCallbackToSlack(commandData):
     try:
-        translatedText = Translator.toScanish(textToTranslate)
-        commandData = createCommandData(responseUrl, translatedText)
+        commandData.translatedText = Translator.toScanish(commandData.originalText)
         ChatUpdater.updateChatWithCommand(commandData)
     except:
         Logger.logUnexpectedError()
-
-def createCommandData(responseUrl, translatedText):
-    return CommandData(
-        translatedText = translatedText,
-        response_url = responseUrl,
-        response_type = "in_channel")

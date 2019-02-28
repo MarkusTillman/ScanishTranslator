@@ -18,8 +18,9 @@ def updateChat(chatData):
 
 def updateChatWithCommand(commandData):
     json = {
+        "username": commandData.userName,
         "response_type": commandData.response_type,
-        "text": commandData.translatedText,
+        "text": commandData.userName + ": " + commandData.translatedText,
     }
     headers = {
         "Content-Type": "application/json;charset=utf-8"

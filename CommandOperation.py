@@ -6,6 +6,7 @@ import Logger
 import Translator
 import _thread
 import CallbackHandler
+from CommandData import CommandData
 
 import sys
 
@@ -28,7 +29,13 @@ def handle(request):
             UserStorage.unregisterUser(userId)
             return ResponseCreator.createJsonResponse({"response_type": onlyReplyToCallingUser, "attachments": [{"image_url": "https://i.imgur.com/YYN18jOh.jpg"}]}) 
         elif arguments.text:
-            _thread.start_new_thread(CallbackHandler.handleCommandCallbackToSlack, (request.form["text"], request.form["response_url"]))
+            commandData = CommandData(
+                originalText = request.form["text"],
+                response_url = request.form["response_url"],
+                response_type = "in_channel",
+                userId = userId,
+                userName = request.form["user_name"])
+            _thread.start_new_thread(CallbackHandler.handleCommandCallbackToSlack, (commandData, ))
             return ""
     except:
         Logger.logUnexpectedError()
