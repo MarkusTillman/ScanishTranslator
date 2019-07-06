@@ -1,0 +1,17 @@
+https://code.visualstudio.com/docs/python/python-tutorial
+https://code.visualstudio.com/docs/python/tutorial-flask
+
+Windows:
+ * python -m venv env
+ * env\scripts\activate
+ * pip install flask
+macOS/Linux:
+ * python3 -m venv env
+ * source env/bin/activate
+ * pip3 install flask
+
+Visual code:
+Select python interpreter (env)
+Create new integrated terminal. Should display "(env)"
+'pytest' to run tests
+python/python3 -m flask run to run application
