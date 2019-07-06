@@ -22,11 +22,11 @@ class TestTranslateScanishToSwedish:
         assert Translator.toSwedish("WordWithoutTranslation") == "WordWithoutTranslation"
 
     def testThatSeveralWordsCanBeTranslatedAtOnce(self):
-        assert Translator.toSwedish("Jävla ålahue jau ei så ked på daj") == "Jävla dumhuvud jag är så trött på dig"
+        assert Translator.toSwedish("Bövvla ålahue jau ei så ked på daj") == "jävla dumhuvud jag är så trött på dig"
 
     def testThatSeveralWordsDividedBySpecialCharactersCanBeTranslated(self):
-        scanish = "Jävla ålahue; jau. ei. så, ked/putt på daj, o dina päron!"
-        assert Translator.toSwedish(scanish) == "Jävla dumhuvud; jag. är. så, trött/irriterad på dig, och dina föräldrar!"
+        scanish = "Bövvla ålahue; jau. ei. så, ked/putt på daj, o dina päron!"
+        assert Translator.toSwedish(scanish) == "jävla dumhuvud; jag. är. så, trött/irriterad på dig, och dina föräldrar!"
 
 class TestTranslateSwedishToScanish:
     
@@ -53,11 +53,11 @@ class TestTranslateSwedishToScanish:
         assert Translator.toScanish("hej") == "haj"
 
     def testThatSeveralWordsCanBeTranslatedAtOnce(self):
-        assert Translator.toScanish("Jävla dumhuvud jag är så trött på dig") == "Jävla ålahue jau ei så ked på daj"
+        assert Translator.toScanish("Jävla dumhuvud jag är så trött på dig") == "bövvla ålahue jau ei så ked på daj"
 
     def testThatSeveralWordsDividedBySpecialCharactersCanBeTranslated(self):
         swedish = "Jävla dumhuvud; jag. är. så, trött/irriterad på dig, och dina föräldrar!"
-        assert Translator.toScanish(swedish) == "Jävla ålahue; jau. ei. så, ked/putt på daj, o dina päron!"
+        assert Translator.toScanish(swedish) == "bövvla ålahue; jau. ei. så, ked/putt på daj, o dina päron!"
 
 class TestOtherStuff:
     def testThatSupportedLanguagesAreOnlyScanishAndSwedish(self):
